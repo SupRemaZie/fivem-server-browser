@@ -29,8 +29,19 @@ CREATE TABLE IF NOT EXISTS players (
     FOREIGN KEY (server_id) REFERENCES servers(id) ON DELETE CASCADE
 );
 
+-- Table des ressources
+CREATE TABLE IF NOT EXISTS resources (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    server_id INTEGER NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (server_id) REFERENCES servers(id) ON DELETE CASCADE,
+    UNIQUE(server_id, name)
+);
+
 -- Index pour améliorer les performances
 CREATE INDEX IF NOT EXISTS idx_players_server_id ON players(server_id);
+CREATE INDEX IF NOT EXISTS idx_resources_server_id ON resources(server_id);
 `
 
 export function initDatabase(): Database.Database {

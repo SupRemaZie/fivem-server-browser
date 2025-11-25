@@ -174,20 +174,9 @@ Structure JSON disponible: ${Object.keys(json).join(', ')}`
             const players = serverData.players || json.players || []
             console.log('Joueurs trouvés dans l\'API:', players.length)
             
-            // Récupérer l'URL de la bannière/logo du serveur
-            // L'API FiveM utilise généralement iconVersion pour construire l'URL
-            let bannerUrl = ''
-            const iconVersion = json.iconVersion || serverData.iconVersion
-            if (iconVersion) {
-              // URL standard pour l'icône d'un serveur FiveM
-              bannerUrl = `https://servers-frontend.fivem.net/api/servers/single/${cfxCode}/icon`
-            }
-            // Vérifier aussi si une URL directe est fournie
-            if (json.bannerUrl || json.iconUrl || serverData.bannerUrl || serverData.iconUrl) {
-              bannerUrl = json.bannerUrl || json.iconUrl || serverData.bannerUrl || serverData.iconUrl
-            }
-            
-            console.log('Bannière/Logo trouvé:', bannerUrl || 'Aucune', 'iconVersion:', iconVersion)
+            // Récupérer l'URL de la bannière/logo du serveur depuis ownerAvatar
+            const bannerUrl = json.ownerAvatar || ''
+            console.log('Bannière/Logo trouvé (ownerAvatar):', bannerUrl || 'Aucune')
             
             const serverInfo = {
               name: serverData.hostname || vars.sv_projectName || 'Serveur FiveM',
@@ -205,7 +194,8 @@ Structure JSON disponible: ${Object.keys(json).join(', ')}`
               resources_count: resources.length || 0,
               cfx_code: cfxCode,
               banner_url: bannerUrl,
-              icon_version: iconVersion || null,
+              icon_version: null, // Plus utilisé, on garde pour compatibilité
+              resources: resources, // Liste complète des ressources
               players: players.map((p: any) => ({
                 name: p.name || 'Joueur inconnu',
                 id: p.id,
@@ -324,6 +314,24 @@ Structure JSON disponible: ${Object.keys(json).join(', ')}`
         console.log(`${players.length} joueurs ajoutés au serveur ${serverId}`)
       }
       
+      // Ajouter les ressources si fournies
+      const resources = (server as any).resources || []
+      if (resources.length > 0) {
+        const resourceStmt = database.prepare('INSERT OR IGNORE INTO resources (name, server_id) VALUES (?, ?)')
+        const insertResources = database.transaction((resourcesList: string[]) => {
+          for (const resource of resourcesList) {
+            try {
+              resourceStmt.run(resource, serverId)
+            } catch (error) {
+              // Ignorer les erreurs (ressource déjà existante, etc.)
+              console.log('Erreur lors de l\'ajout de la ressource', resource, ':', error)
+            }
+          }
+        })
+        insertResources(resources)
+        console.log(`${resources.length} ressources ajoutées au serveur ${serverId}`)
+      }
+      
       return { id: serverId, ...server }
     } catch (error) {
       console.error('Erreur lors de la création du serveur:', error)
@@ -422,6 +430,20 @@ Structure JSON disponible: ${Object.keys(json).join(', ')}`
       return stmt.all(serverId)
     } catch (error) {
       console.error('Erreur lors de la récupération des joueurs du serveur:', error)
+      throw error
+    }
+  })
+
+  // ========== HANDLERS POUR LES RESSOURCES ==========
+
+  // Obtenir toutes les ressources d'un serveur
+  ipcMain.handle('resources:getByServerId', (_, serverId: number) => {
+    try {
+      const stmt = database.prepare('SELECT name FROM resources WHERE server_id = ? ORDER BY name ASC')
+      const results = stmt.all(serverId) as Array<{ name: string }>
+      return results.map(r => r.name)
+    } catch (error) {
+      console.error('Erreur lors de la récupération des ressources du serveur:', error)
       throw error
     }
   })

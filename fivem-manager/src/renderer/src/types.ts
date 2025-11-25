@@ -80,6 +80,9 @@ export interface API {
     whitelist: (id: number) => Promise<{ success: boolean }>
     unwhitelist: (id: number) => Promise<{ success: boolean }>
   }
+  resources: {
+    getByServerId: (serverId: number) => Promise<string[]>
+  }
   database: DatabaseAPI
 }
 
