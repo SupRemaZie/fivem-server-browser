@@ -50,6 +50,9 @@ export interface API {
       support_status: string
       resources_count: number
       cfx_code: string
+      banner_url: string
+      icon_version: number | null
+      players: Array<{ name: string; id?: number; ping?: number; identifiers?: string[] }>
     }>
   }
   players: {

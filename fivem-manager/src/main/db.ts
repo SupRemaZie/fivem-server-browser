@@ -92,7 +92,9 @@ export function initDatabase(): Database.Database {
     { name: 'last_seen', type: 'TEXT', default: "''" },
     { name: 'support_status', type: 'TEXT', default: "''" },
     { name: 'resources_count', type: 'INTEGER', default: '0' },
-    { name: 'cfx_code', type: 'TEXT', default: "''" }
+    { name: 'cfx_code', type: 'TEXT', default: "''" },
+    { name: 'banner_url', type: 'TEXT', default: "''" },
+    { name: 'icon_version', type: 'INTEGER', default: 'NULL' }
   ]
 
   for (const column of newColumns) {

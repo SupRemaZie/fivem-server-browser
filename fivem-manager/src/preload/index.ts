@@ -56,6 +56,9 @@ const api = {
       support_status: string
       resources_count: number
       cfx_code: string
+      banner_url: string
+      icon_version: number | null
+      players: Array<{ name: string; id?: number; ping?: number; identifiers?: string[] }>
     }> => ipcRenderer.invoke('servers:fetchFromCFX', cfxCode)
   },
   // APIs pour les joueurs

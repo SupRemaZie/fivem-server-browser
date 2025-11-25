@@ -69,7 +69,20 @@ app.whenReady().then(() => {
     return new Promise((resolve, reject) => {
       const url = `https://servers-frontend.fivem.net/api/servers/single/${cfxCode}`
       
-      get(url, (res) => {
+      const options = {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+          'Accept': 'application/json'
+        }
+      }
+      
+      get(url, options, (res) => {
+        // Vérifier le code de statut HTTP
+        if (res.statusCode !== 200) {
+          reject(new Error(`Erreur HTTP ${res.statusCode}: ${res.statusMessage}`))
+          return
+        }
+
         let data = ''
 
         res.on('data', (chunk) => {
@@ -79,55 +92,142 @@ app.whenReady().then(() => {
         res.on('end', () => {
           try {
             const json = JSON.parse(data)
+            console.log('========== JSON COMPLET RETOURNÉ PAR L\'API FIVEM ==========')
+            console.log(JSON.stringify(json, null, 2))
+            console.log('============================================================')
+            console.log('Réponse API FiveM - clés principales:', Object.keys(json))
+            console.log('connectEndPoints au niveau racine:', json.connectEndPoints)
+            console.log('Data existe:', !!json.Data)
             
-            if (json.Data) {
-              const serverData = json.Data
-              const connectEndPoints = json.connectEndPoints || []
-              
-              // Extraire IP et port depuis connectEndPoints (format: "IP:PORT")
-              let ip = ''
-              let port = 30120 // Port par défaut FiveM
-              
-              if (connectEndPoints.length > 0) {
-                const endpoint = connectEndPoints[0]
-                const [endpointIp, endpointPort] = endpoint.split(':')
-                ip = endpointIp
-                port = parseInt(endpointPort) || 30120
-              } else {
-                // Si pas d'endpoint, essayer de parser depuis d'autres champs
-                reject(new Error('Aucune adresse IP trouvée pour ce serveur'))
-                return
-              }
-
-              const vars = serverData.vars || {}
-              const resources = serverData.resources || []
-              
-              const serverInfo = {
-                name: serverData.hostname || vars.sv_projectName || 'Serveur FiveM',
-                ip: ip,
-                port: port,
-                description: vars.sv_projectDesc || serverData.sv_projectDesc || vars.sv_projectName || '',
-                is_online: 1, // On suppose qu'il est en ligne si on peut récupérer les infos
-                max_players: serverData.sv_maxclients || vars.sv_maxClients || 0,
-                current_players: serverData.clients || serverData.selfReportedClients || 0,
-                tags: vars.tags || '',
-                discord: vars.Discord || '',
-                owner_name: json.ownerName || '',
-                last_seen: json.lastSeen || '',
-                support_status: json.support_status || '',
-                resources_count: resources.length || 0,
-                cfx_code: cfxCode
-              }
-
-              resolve(serverInfo)
-            } else {
-              reject(new Error('Serveur non trouvé ou code CFX invalide'))
+            if (!json.Data) {
+              reject(new Error('Serveur non trouvé ou code CFX invalide. Structure de réponse inattendue.'))
+              return
             }
+
+            const serverData = json.Data
+            // connectEndPoints peut être au niveau racine ou dans Data
+            // Essayer d'abord au niveau racine, puis dans Data
+            let connectEndPoints: any[] = []
+            
+            // Chercher connectEndPoints au niveau racine
+            if (json.connectEndPoints) {
+              if (Array.isArray(json.connectEndPoints)) {
+                connectEndPoints = json.connectEndPoints.filter((ep: any) => ep != null)
+              } else if (typeof json.connectEndPoints === 'string') {
+                connectEndPoints = [json.connectEndPoints]
+              }
+            }
+            
+            // Si pas trouvé au niveau racine, chercher dans Data
+            if (connectEndPoints.length === 0 && serverData.connectEndPoints) {
+              if (Array.isArray(serverData.connectEndPoints)) {
+                connectEndPoints = serverData.connectEndPoints.filter((ep: any) => ep != null)
+              } else if (typeof serverData.connectEndPoints === 'string') {
+                connectEndPoints = [serverData.connectEndPoints]
+              }
+            }
+            
+            console.log('connectEndPoints trouvés:', connectEndPoints, 'type:', typeof json.connectEndPoints, 'length:', connectEndPoints.length)
+            
+            // Extraire IP et port depuis connectEndPoints (format: "IP:PORT")
+            let ip = ''
+            let port = 30120 // Port par défaut FiveM
+            
+            if (connectEndPoints.length > 0) {
+              const endpoint = connectEndPoints[0]
+              console.log('Premier endpoint:', endpoint, 'type:', typeof endpoint)
+              
+              if (typeof endpoint === 'string' && endpoint.includes(':')) {
+                const parts = endpoint.split(':')
+                ip = parts[0].trim()
+                port = parseInt(parts[1]) || 30120
+                console.log('IP extraite depuis string:', ip, 'port:', port)
+              } else if (typeof endpoint === 'object' && endpoint !== null) {
+                // Format alternatif avec objet
+                const endpointObj = endpoint as { ip?: string; address?: string; port?: number }
+                ip = (endpointObj.ip || endpointObj.address || '').trim()
+                port = endpointObj.port || 30120
+                console.log('IP extraite depuis objet:', ip, 'port:', port)
+              }
+            }
+            
+            // Si toujours pas d'IP, essayer de chercher dans d'autres champs
+            if (!ip) {
+              // Chercher dans les variables du serveur
+              const vars = serverData.vars || {}
+              console.log('Recherche IP dans vars:', Object.keys(vars))
+              
+              // Dernière tentative : rejeter avec plus d'informations
+              const errorMsg = `Aucune adresse IP trouvée pour ce serveur. 
+connectEndPoints (racine): ${JSON.stringify(json.connectEndPoints)}
+connectEndPoints (Data): ${JSON.stringify(serverData.connectEndPoints)}
+Structure JSON disponible: ${Object.keys(json).join(', ')}`
+              console.error(errorMsg)
+              reject(new Error(errorMsg))
+              return
+            }
+
+            const vars = serverData.vars || {}
+            const resources = serverData.resources || []
+            
+            // Récupérer les joueurs depuis l'API
+            const players = serverData.players || json.players || []
+            console.log('Joueurs trouvés dans l\'API:', players.length)
+            
+            // Récupérer l'URL de la bannière/logo du serveur
+            // L'API FiveM utilise généralement iconVersion pour construire l'URL
+            let bannerUrl = ''
+            const iconVersion = json.iconVersion || serverData.iconVersion
+            if (iconVersion) {
+              // URL standard pour l'icône d'un serveur FiveM
+              bannerUrl = `https://servers-frontend.fivem.net/api/servers/single/${cfxCode}/icon`
+            }
+            // Vérifier aussi si une URL directe est fournie
+            if (json.bannerUrl || json.iconUrl || serverData.bannerUrl || serverData.iconUrl) {
+              bannerUrl = json.bannerUrl || json.iconUrl || serverData.bannerUrl || serverData.iconUrl
+            }
+            
+            console.log('Bannière/Logo trouvé:', bannerUrl || 'Aucune', 'iconVersion:', iconVersion)
+            
+            const serverInfo = {
+              name: serverData.hostname || vars.sv_projectName || 'Serveur FiveM',
+              ip: ip,
+              port: port,
+              description: vars.sv_projectDesc || serverData.sv_projectDesc || vars.sv_projectName || '',
+              is_online: 1, // On suppose qu'il est en ligne si on peut récupérer les infos
+              max_players: serverData.sv_maxclients || parseInt(vars.sv_maxClients) || 0,
+              current_players: serverData.clients || serverData.selfReportedClients || 0,
+              tags: vars.tags || '',
+              discord: vars.Discord || '',
+              owner_name: json.ownerName || '',
+              last_seen: json.lastSeen || '',
+              support_status: json.support_status || '',
+              resources_count: resources.length || 0,
+              cfx_code: cfxCode,
+              banner_url: bannerUrl,
+              icon_version: iconVersion || null,
+              players: players.map((p: any) => ({
+                name: p.name || 'Joueur inconnu',
+                id: p.id,
+                ping: p.ping || 0,
+                identifiers: p.identifiers || []
+              }))
+            }
+
+            console.log('Informations serveur extraites avec succès:', { 
+              name: serverInfo.name, 
+              ip: serverInfo.ip, 
+              port: serverInfo.port,
+              players_count: serverInfo.players.length
+            })
+            resolve(serverInfo)
           } catch (error) {
+            console.error('Erreur lors du parsing:', error)
             reject(new Error('Erreur lors du parsing des données: ' + (error as Error).message))
           }
         })
       }).on('error', (error) => {
+        console.error('Erreur réseau:', error)
         reject(new Error('Erreur lors de la récupération des données: ' + error.message))
       })
 
@@ -175,14 +275,16 @@ app.whenReady().then(() => {
     support_status?: string
     resources_count?: number
     cfx_code?: string
+    banner_url?: string
+    icon_version?: number | null
   }) => {
     try {
       const stmt = database.prepare(
         `INSERT INTO servers (
           name, ip, port, description, max_players, current_players, 
           tags, discord, owner_name, last_seen, support_status, 
-          resources_count, cfx_code, is_online
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+          resources_count, cfx_code, banner_url, icon_version, is_online
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
       )
       const result = stmt.run(
         server.name,
@@ -198,9 +300,31 @@ app.whenReady().then(() => {
         server.support_status || null,
         server.resources_count || 0,
         server.cfx_code || null,
+        server.banner_url || null,
+        server.icon_version || null,
         1 // is_online par défaut à 1 si créé via CFX
       )
-      return { id: result.lastInsertRowid, ...server }
+      const serverId = result.lastInsertRowid as number
+      
+      // Ajouter les joueurs si fournis
+      const players = (server as any).players || []
+      if (players.length > 0) {
+        const playerStmt = database.prepare('INSERT INTO players (name, server_id, is_whitelisted) VALUES (?, ?, 1)')
+        const insertMany = database.transaction((playersList: any[]) => {
+          for (const player of playersList) {
+            try {
+              playerStmt.run(player.name, serverId)
+            } catch (error) {
+              // Ignorer les erreurs (joueur déjà existant, etc.)
+              console.log('Erreur lors de l\'ajout du joueur', player.name, ':', error)
+            }
+          }
+        })
+        insertMany(players)
+        console.log(`${players.length} joueurs ajoutés au serveur ${serverId}`)
+      }
+      
+      return { id: serverId, ...server }
     } catch (error) {
       console.error('Erreur lors de la création du serveur:', error)
       throw error
@@ -222,6 +346,8 @@ app.whenReady().then(() => {
     support_status?: string
     resources_count?: number
     cfx_code?: string
+    banner_url?: string
+    icon_version?: number | null
   }) => {
     try {
       const stmt = database.prepare(
@@ -230,6 +356,7 @@ app.whenReady().then(() => {
           max_players = ?, current_players = ?, tags = ?, 
           discord = ?, owner_name = ?, last_seen = ?, 
           support_status = ?, resources_count = ?, cfx_code = ?,
+          banner_url = ?, icon_version = ?,
           updated_at = CURRENT_TIMESTAMP 
         WHERE id = ?`
       )
@@ -247,6 +374,8 @@ app.whenReady().then(() => {
         server.support_status || null,
         server.resources_count || 0,
         server.cfx_code || null,
+        server.banner_url || null,
+        server.icon_version || null,
         id
       )
       return { id, ...server }

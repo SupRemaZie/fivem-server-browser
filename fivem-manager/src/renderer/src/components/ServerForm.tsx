@@ -21,8 +21,11 @@ export default function ServerForm({ server, onSubmit, onCancel }: ServerFormPro
     last_seen: '',
     support_status: '',
     resources_count: 0,
-    cfx_code: ''
+    cfx_code: '',
+    banner_url: '',
+    icon_version: null as number | null
   })
+  const [players, setPlayers] = useState<Array<{ name: string; id?: number; ping?: number; identifiers?: string[] }>>([])
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [cfxCode, setCfxCode] = useState('')
   const [isFetching, setIsFetching] = useState(false)
@@ -43,7 +46,9 @@ export default function ServerForm({ server, onSubmit, onCancel }: ServerFormPro
         last_seen: server.last_seen || '',
         support_status: server.support_status || '',
         resources_count: server.resources_count || 0,
-        cfx_code: server.cfx_code || ''
+        cfx_code: server.cfx_code || '',
+        banner_url: server.banner_url || '',
+        icon_version: server.icon_version || null
       })
     } else {
       setFormData({
@@ -59,9 +64,12 @@ export default function ServerForm({ server, onSubmit, onCancel }: ServerFormPro
         last_seen: '',
         support_status: '',
         resources_count: 0,
-        cfx_code: ''
+        cfx_code: '',
+        banner_url: '',
+        icon_version: null
       })
     }
+    setPlayers([])
     setCfxCode('')
     setFetchError(null)
   }, [server])
@@ -90,8 +98,11 @@ export default function ServerForm({ server, onSubmit, onCancel }: ServerFormPro
         last_seen: serverInfo.last_seen,
         support_status: serverInfo.support_status,
         resources_count: serverInfo.resources_count,
-        cfx_code: serverInfo.cfx_code
+        cfx_code: serverInfo.cfx_code,
+        banner_url: serverInfo.banner_url,
+        icon_version: serverInfo.icon_version
       })
+      setPlayers(serverInfo.players || [])
       setCfxCode('') // Réinitialiser le champ après succès
     } catch (error) {
       setFetchError((error as Error).message || 'Erreur lors de la récupération des informations')
@@ -105,7 +116,8 @@ export default function ServerForm({ server, onSubmit, onCancel }: ServerFormPro
     e.preventDefault()
     setIsSubmitting(true)
     try {
-      await onSubmit(formData)
+      // Inclure les joueurs dans les données du serveur
+      await onSubmit({ ...formData, players } as any)
       setFormData({ 
         name: '', 
         ip: '', 
@@ -119,8 +131,11 @@ export default function ServerForm({ server, onSubmit, onCancel }: ServerFormPro
         last_seen: '',
         support_status: '',
         resources_count: 0,
-        cfx_code: ''
+        cfx_code: '',
+        banner_url: '',
+        icon_version: null
       })
+      setPlayers([])
       setCfxCode('')
       setFetchError(null)
     } catch (error) {
