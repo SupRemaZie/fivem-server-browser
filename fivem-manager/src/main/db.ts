@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS players (
     name TEXT NOT NULL,
     server_id INTEGER NOT NULL,
     is_banned INTEGER DEFAULT 0,
-    is_whitelisted INTEGER DEFAULT 0,
+    is_whitelisted INTEGER DEFAULT 1,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (server_id) REFERENCES servers(id) ON DELETE CASCADE
@@ -60,10 +60,17 @@ export function initDatabase(): Database.Database {
 
   try {
     db.exec(`
-      ALTER TABLE players ADD COLUMN is_whitelisted INTEGER DEFAULT 0;
+      ALTER TABLE players ADD COLUMN is_whitelisted INTEGER DEFAULT 1;
     `)
   } catch (error) {
-    // La colonne existe déjà, ignorer l'erreur
+    // La colonne existe déjà, mettre à jour les joueurs existants pour qu'ils soient whitelistés
+    try {
+      db.exec(`
+        UPDATE players SET is_whitelisted = 1 WHERE is_whitelisted = 0 OR is_whitelisted IS NULL;
+      `)
+    } catch (updateError) {
+      // Ignorer l'erreur
+    }
   }
 
   // Migration : ajouter la colonne is_online si elle n'existe pas

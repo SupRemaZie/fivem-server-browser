@@ -76,15 +76,15 @@ function addSamplePlayers() {
 
       for (let i = 0; i < numPlayers && i < shuffledNames.length; i++) {
         const name = shuffledNames[i]
-        // 10% de chance d'être banni, 20% de chance d'être whitelisté
+        // 10% de chance d'être banni, tous les joueurs sont whitelistés par défaut
         const isBanned = Math.random() < 0.1 ? 1 : 0
-        const isWhitelisted = Math.random() < 0.2 ? 1 : 0
+        const isWhitelisted = 1 // Tous les joueurs sont whitelistés par défaut
 
         try {
           insertPlayer.run(name, server.id, isBanned, isWhitelisted)
           const status = []
           if (isBanned) status.push('BANNI')
-          if (isWhitelisted) status.push('WHITELIST')
+          status.push('WHITELIST')
           console.log(`  ✓ ${name}${status.length > 0 ? ' (' + status.join(', ') + ')' : ''}`)
           totalAdded++
         } catch (error) {

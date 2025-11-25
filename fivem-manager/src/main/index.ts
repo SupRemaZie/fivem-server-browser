@@ -164,12 +164,12 @@ app.whenReady().then(() => {
     }
   })
 
-  // Créer un joueur
+  // Créer un joueur (whitelisté par défaut)
   ipcMain.handle('players:create', (_, player: { name: string; server_id: number }) => {
     try {
-      const stmt = database.prepare('INSERT INTO players (name, server_id) VALUES (?, ?)')
+      const stmt = database.prepare('INSERT INTO players (name, server_id, is_whitelisted) VALUES (?, ?, 1)')
       const result = stmt.run(player.name, player.server_id)
-      return { id: result.lastInsertRowid, ...player }
+      return { id: result.lastInsertRowid, ...player, is_whitelisted: true }
     } catch (error) {
       console.error('Erreur lors de la création du joueur:', error)
       throw error
@@ -384,9 +384,9 @@ app.whenReady().then(() => {
 
         for (let i = 0; i < numPlayers && i < shuffledNames.length; i++) {
           const name = shuffledNames[i]
-          // 10% de chance d'être banni, 20% de chance d'être whitelisté
+          // 10% de chance d'être banni, tous les joueurs sont whitelistés par défaut
           const isBanned = Math.random() < 0.1 ? 1 : 0
-          const isWhitelisted = Math.random() < 0.2 ? 1 : 0
+          const isWhitelisted = 1 // Tous les joueurs sont whitelistés par défaut
 
           try {
             insertPlayer.run(name, server.id, isBanned, isWhitelisted)
