@@ -34,7 +34,6 @@ export interface API {
     getPlayerCount: (serverId: number) => Promise<number>
     checkStatus: (serverId: number) => Promise<{ isOnline: boolean }>
     checkAllStatus: () => Promise<Array<{ id: number; isOnline: boolean }>>
-    addSamplePlayers: () => Promise<{ success: boolean; totalAdded: number; message: string }>
     fetchFromCFX: (cfxCode: string) => Promise<{
       name: string
       ip: string
