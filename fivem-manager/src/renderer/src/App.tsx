@@ -15,16 +15,63 @@ function App(): React.JSX.Element {
   // Charger les données au démarrage
   useEffect(() => {
     loadData()
-    // Vérifier l'état de tous les serveurs au chargement
-    checkAllServersStatus()
   }, [])
 
-  const checkAllServersStatus = async () => {
+  const refreshAllServers = async () => {
     try {
-      await window.api.servers.checkAllStatus()
-      await loadData() // Recharger pour mettre à jour les états
+      setLoading(true)
+      const serversData = await window.api.servers.getAll()
+      let updatedCount = 0
+      let errorCount = 0
+
+      // Rafraîchir chaque serveur qui a un code CFX
+      for (const server of serversData) {
+        if (server.cfx_code && server.id) {
+          try {
+            // Récupérer les nouvelles informations depuis l'API CFX
+            const serverInfo = await window.api.servers.fetchFromCFX(server.cfx_code)
+            
+            // Mettre à jour le serveur avec les nouvelles informations
+            await window.api.servers.update(server.id, {
+              name: serverInfo.name,
+              ip: serverInfo.ip,
+              port: serverInfo.port,
+              description: serverInfo.description,
+              max_players: serverInfo.max_players,
+              current_players: serverInfo.current_players,
+              tags: serverInfo.tags,
+              discord: serverInfo.discord,
+              owner_name: serverInfo.owner_name,
+              last_seen: serverInfo.last_seen,
+              support_status: serverInfo.support_status,
+              resources_count: serverInfo.resources_count,
+              cfx_code: serverInfo.cfx_code,
+              banner_url: serverInfo.banner_url,
+              icon_version: serverInfo.icon_version,
+              resources: (serverInfo as any).resources || [],
+              players: serverInfo.players || []
+            } as any)
+            
+            updatedCount++
+          } catch (error) {
+            console.error(`Erreur lors du rafraîchissement du serveur ${server.name}:`, error)
+            errorCount++
+          }
+        }
+      }
+
+      // Recharger les données
+      await loadData()
+      
+      if (updatedCount > 0 || errorCount > 0) {
+        alert(`${updatedCount} serveur(s) mis à jour${errorCount > 0 ? `, ${errorCount} erreur(s)` : ''}`)
+      } else {
+        alert('Aucun serveur avec code CFX trouvé')
+      }
     } catch (error) {
-      console.error('Erreur lors de la vérification des statuts:', error)
+      console.error('Erreur lors du rafraîchissement des serveurs:', error)
+      alert('Erreur lors du rafraîchissement des serveurs')
+      setLoading(false)
     }
   }
 
@@ -173,11 +220,12 @@ function App(): React.JSX.Element {
               <h2 className="text-xl sm:text-2xl font-semibold text-gray-800">Serveurs</h2>
               <div className="flex gap-2 flex-wrap">
                 <button
-                  onClick={checkAllServersStatus}
-                  className="px-3 sm:px-4 py-2 text-sm sm:text-base bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
-                  title="Vérifier l'état de tous les serveurs"
+                  onClick={refreshAllServers}
+                  className="px-3 sm:px-4 py-2 text-sm sm:text-base bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  title="Rafraîchir les informations de tous les serveurs (nécessite un code CFX)"
+                  disabled={loading}
                 >
-                  🔄 Vérifier
+                  🔄 Rafraîchir
                 </button>
                 <button
                   onClick={handleAddSamplePlayers}
