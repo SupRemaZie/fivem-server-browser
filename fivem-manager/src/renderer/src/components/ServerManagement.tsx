@@ -16,6 +16,9 @@ export default function ServerManagement({ server, onBack, onRefresh }: ServerMa
   const [resources, setResources] = useState<string[]>([])
   const [logs, setLogs] = useState<Array<{ id: number; message: string; timestamp: string }>>([])
   const [loading, setLoading] = useState(false)
+  const [showBanModal, setShowBanModal] = useState(false)
+  const [playerToBan, setPlayerToBan] = useState<number | null>(null)
+  const [banReason, setBanReason] = useState('')
 
   useEffect(() => {
     if (server.id) {
@@ -56,24 +59,37 @@ export default function ServerManagement({ server, onBack, onRefresh }: ServerMa
     }
   }
 
-  const handleBan = async (playerId: number) => {
-    const reason = prompt('Veuillez renseigner le motif du ban :')
-    if (reason !== null) {
-      if (reason.trim() === '') {
-        alert('Le motif du ban ne peut pas être vide')
-        return
-      }
-      if (confirm(`Êtes-vous sûr de vouloir bannir ce joueur ?\n\nMotif : ${reason}`)) {
-        try {
-          await window.api.players.ban(playerId, reason.trim())
-          await loadData()
-          onRefresh()
-        } catch (error) {
-          console.error('Erreur lors du ban:', error)
-          alert('Erreur lors du ban du joueur')
-        }
-      }
+  const handleBanClick = (playerId: number) => {
+    setPlayerToBan(playerId)
+    setBanReason('')
+    setShowBanModal(true)
+  }
+
+  const handleBanConfirm = async () => {
+    if (!playerToBan) return
+    
+    if (banReason.trim() === '') {
+      alert('Le motif du ban ne peut pas être vide')
+      return
     }
+
+    try {
+      await window.api.players.ban(playerToBan, banReason.trim())
+      setShowBanModal(false)
+      setPlayerToBan(null)
+      setBanReason('')
+      await loadData()
+      onRefresh()
+    } catch (error) {
+      console.error('Erreur lors du ban:', error)
+      alert('Erreur lors du ban du joueur')
+    }
+  }
+
+  const handleBanCancel = () => {
+    setShowBanModal(false)
+    setPlayerToBan(null)
+    setBanReason('')
   }
 
   const handleUnban = async (playerId: number) => {
@@ -263,7 +279,7 @@ export default function ServerManagement({ server, onBack, onRefresh }: ServerMa
                                   </button>
                                 ) : (
                                   <button
-                                    onClick={() => player.id && handleBan(player.id)}
+                                    onClick={() => player.id && handleBanClick(player.id)}
                                     className="px-2 sm:px-3 py-1 text-xs bg-red-600 text-white rounded hover:bg-red-700"
                                   >
                                     Bannir
@@ -374,6 +390,47 @@ export default function ServerManagement({ server, onBack, onRefresh }: ServerMa
           </>
         )}
       </div>
+
+      {/* Modal pour le motif de ban */}
+      {showBanModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
+            <div className="px-6 py-4 border-b border-gray-200">
+              <h3 className="text-lg font-semibold text-gray-900">Bannir un joueur</h3>
+            </div>
+            <div className="px-6 py-4">
+              <label htmlFor="banReason" className="block text-sm font-medium text-gray-700 mb-2">
+                Motif du ban *
+              </label>
+              <textarea
+                id="banReason"
+                value={banReason}
+                onChange={(e) => setBanReason(e.target.value)}
+                placeholder="Entrez le motif du ban..."
+                rows={4}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900 bg-white"
+                autoFocus
+              />
+              <p className="mt-2 text-xs text-gray-500">Le motif est obligatoire et sera affiché dans l'onglet Bans.</p>
+            </div>
+            <div className="px-6 py-4 border-t border-gray-200 flex justify-end gap-3">
+              <button
+                onClick={handleBanCancel}
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200"
+              >
+                Annuler
+              </button>
+              <button
+                onClick={handleBanConfirm}
+                disabled={banReason.trim() === ''}
+                className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Bannir
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
