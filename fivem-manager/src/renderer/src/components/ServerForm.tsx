@@ -26,6 +26,7 @@ export default function ServerForm({ server, onSubmit, onCancel }: ServerFormPro
     icon_version: null as number | null
   })
   const [players, setPlayers] = useState<Array<{ name: string; id?: number; ping?: number; identifiers?: string[] }>>([])
+  const [resources, setResources] = useState<string[]>([])
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [cfxCode, setCfxCode] = useState('')
   const [isFetching, setIsFetching] = useState(false)
@@ -70,8 +71,19 @@ export default function ServerForm({ server, onSubmit, onCancel }: ServerFormPro
       })
     }
     setPlayers([])
+    setResources([])
     setCfxCode('')
     setFetchError(null)
+    
+    // Charger les ressources existantes si on édite un serveur
+    if (server?.id) {
+      window.api.resources.getByServerId(server.id)
+        .then(setResources)
+        .catch((error) => {
+          console.error('Erreur lors du chargement des ressources:', error)
+          setResources([])
+        })
+    }
   }, [server])
 
   const handleFetchFromCFX = async () => {
@@ -103,6 +115,7 @@ export default function ServerForm({ server, onSubmit, onCancel }: ServerFormPro
         icon_version: serverInfo.icon_version
       })
       setPlayers(serverInfo.players || [])
+      setResources((serverInfo as any).resources || [])
       setCfxCode('') // Réinitialiser le champ après succès
     } catch (error) {
       setFetchError((error as Error).message || 'Erreur lors de la récupération des informations')
@@ -116,8 +129,8 @@ export default function ServerForm({ server, onSubmit, onCancel }: ServerFormPro
     e.preventDefault()
     setIsSubmitting(true)
     try {
-      // Inclure les joueurs dans les données du serveur
-      await onSubmit({ ...formData, players } as any)
+      // Inclure les joueurs et ressources dans les données du serveur
+      await onSubmit({ ...formData, players, resources } as any)
       setFormData({ 
         name: '', 
         ip: '', 
@@ -136,6 +149,7 @@ export default function ServerForm({ server, onSubmit, onCancel }: ServerFormPro
         icon_version: null
       })
       setPlayers([])
+      setResources([])
       setCfxCode('')
       setFetchError(null)
     } catch (error) {

@@ -386,6 +386,32 @@ Structure JSON disponible: ${Object.keys(json).join(', ')}`
         server.icon_version || null,
         id
       )
+      
+      // Mettre à jour les ressources si fournies
+      const resources = (server as any).resources
+      if (Array.isArray(resources)) {
+        // Supprimer les anciennes ressources
+        const deleteStmt = database.prepare('DELETE FROM resources WHERE server_id = ?')
+        deleteStmt.run(id)
+        
+        // Ajouter les nouvelles ressources
+        if (resources.length > 0) {
+          const resourceStmt = database.prepare('INSERT OR IGNORE INTO resources (name, server_id) VALUES (?, ?)')
+          const insertResources = database.transaction((resourcesList: string[]) => {
+            for (const resource of resourcesList) {
+              try {
+                resourceStmt.run(resource, id)
+              } catch (error) {
+                // Ignorer les erreurs (ressource déjà existante, etc.)
+                console.log('Erreur lors de l\'ajout de la ressource', resource, ':', error)
+              }
+            }
+          })
+          insertResources(resources)
+          console.log(`${resources.length} ressources mises à jour pour le serveur ${id}`)
+        }
+      }
+      
       return { id, ...server }
     } catch (error) {
       console.error('Erreur lors de la mise à jour du serveur:', error)

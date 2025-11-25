@@ -37,8 +37,8 @@ export default function ServerManagement({ server, onBack, onRefresh }: ServerMa
           setBannedPlayers(allPlayers.filter(p => p.is_banned === 1 || p.is_banned === true))
           break
         case 'resources':
-          // Simuler le chargement des ressources (à implémenter avec l'API FiveM)
-          setResources(['es_extended', 'esx_menu_default', 'esx_basicneeds', 'esx_ambulancejob'])
+          const allressources = await window.api.resources.getByServerId(server.id)
+          setResources(allressources)
           break
         case 'logs':
           // Simuler le chargement des logs (à implémenter avec l'API FiveM)

@@ -77,6 +77,10 @@ const api = {
     whitelist: (id: number): Promise<{ success: boolean }> => ipcRenderer.invoke('players:whitelist', id),
     unwhitelist: (id: number): Promise<{ success: boolean }> => ipcRenderer.invoke('players:unwhitelist', id)
   },
+  // APIs pour les ressources
+  resources: {
+    getByServerId: (serverId: number): Promise<string[]> => ipcRenderer.invoke('resources:getByServerId', serverId)
+  },
   // APIs pour la base de données
   database: {
     reset: (): Promise<{ success: boolean; message: string }> => ipcRenderer.invoke('database:reset')
