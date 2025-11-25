@@ -93,6 +93,15 @@ export function initDatabase(): Database.Database {
     // La colonne existe déjà, ignorer l'erreur
   }
 
+  // Migration : ajouter la colonne ban_reason si elle n'existe pas
+  try {
+    db.exec(`
+      ALTER TABLE players ADD COLUMN ban_reason TEXT DEFAULT NULL;
+    `)
+  } catch (error) {
+    // La colonne existe déjà, ignorer l'erreur
+  }
+
   // Migration : ajouter les nouvelles colonnes pour les infos de l'API FiveM
   const newColumns = [
     { name: 'max_players', type: 'INTEGER', default: '0' },

@@ -71,7 +71,7 @@ const api = {
     update: (id: number, player: Omit<Player, 'id' | 'created_at' | 'updated_at' | 'is_banned' | 'is_whitelisted'>): Promise<Player> =>
       ipcRenderer.invoke('players:update', id, player),
     delete: (id: number): Promise<{ success: boolean }> => ipcRenderer.invoke('players:delete', id),
-    ban: (id: number): Promise<{ success: boolean }> => ipcRenderer.invoke('players:ban', id),
+    ban: (id: number, reason: string): Promise<{ success: boolean }> => ipcRenderer.invoke('players:ban', id, reason),
     unban: (id: number): Promise<{ success: boolean }> => ipcRenderer.invoke('players:unban', id),
     whitelist: (id: number): Promise<{ success: boolean }> => ipcRenderer.invoke('players:whitelist', id),
     unwhitelist: (id: number): Promise<{ success: boolean }> => ipcRenderer.invoke('players:unwhitelist', id)

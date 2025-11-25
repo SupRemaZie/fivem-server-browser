@@ -199,11 +199,6 @@ npm run format       # Formater le code avec Prettier
 
 ---
 
-## 🤝 Contribution
-
-Les contributions sont les bienvenues ! N'hésitez pas à ouvrir une issue ou une pull request.
-
----
 
 ## 📄 Licence
 

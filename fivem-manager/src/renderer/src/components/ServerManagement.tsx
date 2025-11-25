@@ -57,14 +57,21 @@ export default function ServerManagement({ server, onBack, onRefresh }: ServerMa
   }
 
   const handleBan = async (playerId: number) => {
-    if (confirm('Êtes-vous sûr de vouloir bannir ce joueur ?')) {
-      try {
-        await window.api.players.ban(playerId)
-        await loadData()
-        onRefresh()
-      } catch (error) {
-        console.error('Erreur lors du ban:', error)
-        alert('Erreur lors du ban du joueur')
+    const reason = prompt('Veuillez renseigner le motif du ban :')
+    if (reason !== null) {
+      if (reason.trim() === '') {
+        alert('Le motif du ban ne peut pas être vide')
+        return
+      }
+      if (confirm(`Êtes-vous sûr de vouloir bannir ce joueur ?\n\nMotif : ${reason}`)) {
+        try {
+          await window.api.players.ban(playerId, reason.trim())
+          await loadData()
+          onRefresh()
+        } catch (error) {
+          console.error('Erreur lors du ban:', error)
+          alert('Erreur lors du ban du joueur')
+        }
       }
     }
   }
@@ -319,6 +326,9 @@ export default function ServerManagement({ server, onBack, onRefresh }: ServerMa
                           Nom
                         </th>
                         <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Motif du ban
+                        </th>
+                        <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                           Date de ban
                         </th>
                         <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -329,7 +339,7 @@ export default function ServerManagement({ server, onBack, onRefresh }: ServerMa
                     <tbody className="bg-white divide-y divide-gray-200">
                       {bannedPlayers.length === 0 ? (
                         <tr>
-                          <td colSpan={3} className="px-4 sm:px-6 py-8 text-center text-gray-500">
+                          <td colSpan={4} className="px-4 sm:px-6 py-8 text-center text-gray-500">
                             Aucun joueur banni
                           </td>
                         </tr>
@@ -338,6 +348,9 @@ export default function ServerManagement({ server, onBack, onRefresh }: ServerMa
                           <tr key={player.id} className="hover:bg-gray-50">
                             <td className="px-4 sm:px-6 py-3 text-sm font-medium text-gray-900">
                               {player.name}
+                            </td>
+                            <td className="px-4 sm:px-6 py-3 text-sm text-gray-700">
+                              {player.ban_reason || <span className="text-gray-400 italic">Aucun motif renseigné</span>}
                             </td>
                             <td className="px-4 sm:px-6 py-3 text-sm text-gray-500">
                               {player.updated_at ? new Date(player.updated_at).toLocaleDateString('fr-FR') : '-'}

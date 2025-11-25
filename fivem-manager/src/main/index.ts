@@ -524,10 +524,10 @@ Structure JSON disponible: ${Object.keys(json).join(', ')}`
   })
 
   // Bannir un joueur
-  ipcMain.handle('players:ban', (_, id: number) => {
+  ipcMain.handle('players:ban', (_, id: number, reason: string) => {
     try {
-      const stmt = database.prepare('UPDATE players SET is_banned = 1, updated_at = CURRENT_TIMESTAMP WHERE id = ?')
-      stmt.run(id)
+      const stmt = database.prepare('UPDATE players SET is_banned = 1, ban_reason = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?')
+      stmt.run(reason || null, id)
       return { success: true }
     } catch (error) {
       console.error('Erreur lors du ban du joueur:', error)
@@ -538,7 +538,7 @@ Structure JSON disponible: ${Object.keys(json).join(', ')}`
   // Débannir un joueur
   ipcMain.handle('players:unban', (_, id: number) => {
     try {
-      const stmt = database.prepare('UPDATE players SET is_banned = 0, updated_at = CURRENT_TIMESTAMP WHERE id = ?')
+      const stmt = database.prepare('UPDATE players SET is_banned = 0, ban_reason = NULL, updated_at = CURRENT_TIMESTAMP WHERE id = ?')
       stmt.run(id)
       return { success: true }
     } catch (error) {
