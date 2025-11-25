@@ -34,6 +34,83 @@ export interface Player {
   updated_at?: string
 }
 
+export type UserRole = 'admin' | 'moderator' | 'support' | 'viewer'
+
+export type Permission = 
+  | 'servers.view'
+  | 'servers.create'
+  | 'servers.edit'
+  | 'servers.delete'
+  | 'players.view'
+  | 'players.ban'
+  | 'players.unban'
+  | 'players.whitelist'
+  | 'players.unwhitelist'
+  | 'staff.view'
+  | 'staff.manage'
+  | 'logs.view'
+  | 'resources.view'
+  | 'resources.manage'
+  | 'database.reset'
+
+export interface User {
+  id?: number
+  username: string
+  email?: string
+  password?: string // Ne jamais stocker en clair en production
+  role: UserRole
+  permissions?: Permission[]
+  created_at?: string
+  updated_at?: string
+}
+
+export interface RolePermissions {
+  role: UserRole
+  permissions: Permission[]
+}
+
+export const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
+  admin: [
+    'servers.view',
+    'servers.create',
+    'servers.edit',
+    'servers.delete',
+    'players.view',
+    'players.ban',
+    'players.unban',
+    'players.whitelist',
+    'players.unwhitelist',
+    'staff.view',
+    'staff.manage',
+    'logs.view',
+    'resources.view',
+    'resources.manage',
+    'database.reset'
+  ],
+  moderator: [
+    'servers.view',
+    'players.view',
+    'players.ban',
+    'players.unban',
+    'players.whitelist',
+    'players.unwhitelist',
+    'logs.view',
+    'resources.view'
+  ],
+  support: [
+    'servers.view',
+    'players.view',
+    'players.whitelist',
+    'players.unwhitelist',
+    'logs.view'
+  ],
+  viewer: [
+    'servers.view',
+    'players.view',
+    'logs.view'
+  ]
+}
+
 export interface DatabaseAPI {
   reset: () => Promise<{ success: boolean; message: string }>
 }

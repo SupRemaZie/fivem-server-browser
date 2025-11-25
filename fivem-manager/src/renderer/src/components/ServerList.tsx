@@ -3,9 +3,9 @@ import { Server } from '../types'
 interface ServerListProps {
   servers: Server[]
   playerCounts: Record<number, number>
-  onEdit: (server: Server) => void
-  onDelete: (id: number) => void
-  onManagePlayers: (server: Server) => void
+  onEdit?: (server: Server) => void
+  onDelete?: (id: number) => void
+  onManagePlayers?: (server: Server) => void
 }
 
 export default function ServerList({ servers, playerCounts, onEdit, onDelete, onManagePlayers }: ServerListProps): React.JSX.Element {
@@ -131,27 +131,33 @@ export default function ServerList({ servers, playerCounts, onEdit, onDelete, on
                     </td>
                     <td className="px-2 sm:px-4 py-3 sm:py-4 whitespace-nowrap text-sm font-medium">
                       <div className="flex flex-wrap gap-1 sm:gap-2">
-                        <button
-                          onClick={() => onManagePlayers(server)}
-                          className="text-green-600 hover:text-green-900 text-xs sm:text-sm"
-                          title="Gérer les joueurs"
-                        >
-                          Gérer
-                        </button>
-                        <button
-                          onClick={() => onEdit(server)}
-                          className="text-indigo-600 hover:text-indigo-900 text-xs sm:text-sm"
-                          title="Modifier"
-                        >
-                          Modifier
-                        </button>
-                        <button
-                          onClick={() => server.id && onDelete(server.id)}
-                          className="text-red-600 hover:text-red-900 text-xs sm:text-sm"
-                          title="Supprimer"
-                        >
-                          Supprimer
-                        </button>
+                        {onManagePlayers && (
+                          <button
+                            onClick={() => onManagePlayers(server)}
+                            className="text-green-600 hover:text-green-900 text-xs sm:text-sm"
+                            title="Gérer les joueurs"
+                          >
+                            Gérer
+                          </button>
+                        )}
+                        {onEdit && (
+                          <button
+                            onClick={() => onEdit(server)}
+                            className="text-indigo-600 hover:text-indigo-900 text-xs sm:text-sm"
+                            title="Modifier"
+                          >
+                            Modifier
+                          </button>
+                        )}
+                        {onDelete && (
+                          <button
+                            onClick={() => server.id && onDelete(server.id)}
+                            className="text-red-600 hover:text-red-900 text-xs sm:text-sm"
+                            title="Supprimer"
+                          >
+                            Supprimer
+                          </button>
+                        )}
                       </div>
                     </td>
                   </tr>

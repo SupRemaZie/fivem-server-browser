@@ -1,10 +1,13 @@
 import { useState, useEffect } from 'react'
+import { AuthProvider, useAuth } from './context/AuthContext'
+import Login from './components/Login'
 import ServerList from './components/ServerList'
 import ServerForm from './components/ServerForm'
 import ServerManagement from './components/ServerManagement'
 import { Server } from './types'
 
-function App(): React.JSX.Element {
+function AppContent(): React.JSX.Element {
+  const { isAuthenticated, user, logout, hasPermission, isLoading: authLoading } = useAuth()
   const [servers, setServers] = useState<Server[]>([])
   const [playerCounts, setPlayerCounts] = useState<Record<number, number>>({})
   const [editingServer, setEditingServer] = useState<Server | null>(null)
@@ -12,10 +15,58 @@ function App(): React.JSX.Element {
   const [showServerForm, setShowServerForm] = useState(false)
   const [loading, setLoading] = useState(true)
 
-  // Charger les données au démarrage
+  const loadData = async () => {
+    try {
+      setLoading(true)
+      const serversData = await window.api.servers.getAll()
+      setServers(serversData)
+
+      // Charger les compteurs de joueurs pour chaque serveur
+      const counts: Record<number, number> = {}
+      const countPromises = serversData
+        .filter(server => server.id)
+        .map(async (server) => {
+          try {
+            const count = await window.api.servers.getPlayerCount(server.id!)
+            counts[server.id!] = count
+          } catch (error) {
+            counts[server.id!] = 0
+          }
+        })
+      
+      await Promise.all(countPromises)
+      setPlayerCounts(counts)
+    } catch (error) {
+      console.error('Erreur lors du chargement des données:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Charger les données au démarrage (doit être AVANT tous les return conditionnels)
   useEffect(() => {
-    loadData()
-  }, [])
+    if (!authLoading && isAuthenticated) {
+      loadData()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAuthenticated, authLoading])
+
+  // Attendre que l'authentification soit chargée
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Chargement...</p>
+        </div>
+      </div>
+    )
+  }
+
+  // Si l'utilisateur n'est pas authentifié, afficher la page de connexion
+  if (!isAuthenticated) {
+    return <Login />
+  }
 
   const refreshAllServers = async () => {
     try {
@@ -87,34 +138,6 @@ function App(): React.JSX.Element {
         console.error('Erreur lors de la réinitialisation:', error)
         alert('Erreur lors de la réinitialisation de la base de données')
       }
-    }
-  }
-
-  const loadData = async () => {
-    try {
-      setLoading(true)
-      const serversData = await window.api.servers.getAll()
-      setServers(serversData)
-
-      // Charger les compteurs de joueurs pour chaque serveur
-      const counts: Record<number, number> = {}
-      const countPromises = serversData
-        .filter(server => server.id)
-        .map(async (server) => {
-          try {
-            const count = await window.api.servers.getPlayerCount(server.id!)
-            counts[server.id!] = count
-          } catch (error) {
-            counts[server.id!] = 0
-          }
-        })
-      
-      await Promise.all(countPromises)
-      setPlayerCounts(counts)
-    } catch (error) {
-      console.error('Erreur lors du chargement des données:', error)
-    } finally {
-      setLoading(false)
     }
   }
 
@@ -192,8 +215,25 @@ function App(): React.JSX.Element {
     <div className="h-screen bg-gray-100 flex flex-col overflow-hidden">
       <div className="flex-1 flex flex-col overflow-hidden px-4 sm:px-6 lg:px-8 py-4">
         <div className="mb-4 flex-shrink-0">
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">🚀 FiveM Server Manager</h1>
-          <p className="mt-1 text-sm sm:text-base text-gray-600">Gérez vos serveurs FiveM et leurs joueurs</p>
+          <div className="flex justify-between items-start">
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">🚀 FiveM Server Manager</h1>
+              <p className="mt-1 text-sm sm:text-base text-gray-600">Gérez vos serveurs FiveM et leurs joueurs</p>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="text-right">
+                <p className="text-sm font-medium text-gray-900">{user?.username}</p>
+                <p className="text-xs text-gray-500 capitalize">{user?.role}</p>
+              </div>
+              <button
+                onClick={logout}
+                className="px-3 py-2 text-sm bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors"
+                title="Déconnexion"
+              >
+                Déconnexion
+              </button>
+            </div>
+          </div>
         </div>
 
         <div className="flex-1 flex flex-col gap-4 min-h-0">
@@ -202,30 +242,36 @@ function App(): React.JSX.Element {
             <div className="flex justify-between items-center mb-4 flex-shrink-0 gap-2">
               <h2 className="text-xl sm:text-2xl font-semibold text-gray-800">Serveurs</h2>
               <div className="flex gap-2 flex-wrap">
-                <button
-                  onClick={refreshAllServers}
-                  className="px-3 sm:px-4 py-2 text-sm sm:text-base bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  title="Rafraîchir les informations de tous les serveurs (nécessite un code CFX)"
-                  disabled={loading}
-                >
-                  🔄 Rafraîchir
-                </button>
-                <button
-                  onClick={handleResetDatabase}
-                  className="px-3 sm:px-4 py-2 text-sm sm:text-base bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
-                  title="Réinitialiser la base de données"
-                >
-                  🗑️ Reset DB
-                </button>
-                <button
-                  onClick={() => {
-                    setEditingServer(null)
-                    setShowServerForm(!showServerForm)
-                  }}
-                  className="px-3 sm:px-4 py-2 text-sm sm:text-base bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors"
-                >
-                  {showServerForm ? 'Annuler' : '+ Ajouter'}
-                </button>
+                {hasPermission('servers.view') && (
+                  <button
+                    onClick={refreshAllServers}
+                    className="px-3 sm:px-4 py-2 text-sm sm:text-base bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    title="Rafraîchir les informations de tous les serveurs (nécessite un code CFX)"
+                    disabled={loading}
+                  >
+                    🔄 Rafraîchir
+                  </button>
+                )}
+                {hasPermission('database.reset') && (
+                  <button
+                    onClick={handleResetDatabase}
+                    className="px-3 sm:px-4 py-2 text-sm sm:text-base bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
+                    title="Réinitialiser la base de données"
+                  >
+                    🗑️ Reset DB
+                  </button>
+                )}
+                {hasPermission('servers.create') && (
+                  <button
+                    onClick={() => {
+                      setEditingServer(null)
+                      setShowServerForm(!showServerForm)
+                    }}
+                    className="px-3 sm:px-4 py-2 text-sm sm:text-base bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors"
+                  >
+                    {showServerForm ? 'Annuler' : '+ Ajouter'}
+                  </button>
+                )}
               </div>
             </div>
 
@@ -243,15 +289,23 @@ function App(): React.JSX.Element {
               <ServerList
                 servers={servers}
                 playerCounts={playerCounts}
-                onEdit={handleServerEdit}
-                onDelete={handleServerDelete}
-                onManagePlayers={handleManagePlayers}
+                onEdit={hasPermission('servers.edit') ? handleServerEdit : undefined}
+                onDelete={hasPermission('servers.delete') ? handleServerDelete : undefined}
+                onManagePlayers={hasPermission('players.view') ? handleManagePlayers : undefined}
               />
             </div>
           </div>
         </div>
       </div>
     </div>
+  )
+}
+
+function App(): React.JSX.Element {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
   )
 }
 
