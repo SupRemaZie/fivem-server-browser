@@ -337,6 +337,74 @@ app.whenReady().then(() => {
     }
   })
 
+  // Ajouter des joueurs de test à tous les serveurs
+  ipcMain.handle('servers:addSamplePlayers', () => {
+    try {
+      const samplePlayerNames = [
+        'John_Doe',
+        'Jane_Smith',
+        'Mike_Johnson',
+        'Sarah_Williams',
+        'David_Brown',
+        'Emily_Davis',
+        'Chris_Wilson',
+        'Jessica_Martinez',
+        'Ryan_Anderson',
+        'Amanda_Taylor',
+        'Kevin_Thomas',
+        'Lisa_Jackson',
+        'Daniel_White',
+        'Michelle_Harris',
+        'James_Martin',
+        'Jennifer_Garcia',
+        'Robert_Rodriguez',
+        'Nicole_Lewis',
+        'William_Walker',
+        'Stephanie_Hall'
+      ]
+
+      // Récupérer tous les serveurs
+      const serversStmt = database.prepare('SELECT id, name FROM servers')
+      const servers = serversStmt.all() as Array<{ id: number; name: string }>
+
+      if (servers.length === 0) {
+        return { success: false, message: 'Aucun serveur trouvé' }
+      }
+
+      const insertPlayer = database.prepare(
+        'INSERT INTO players (name, server_id, is_banned, is_whitelisted) VALUES (?, ?, ?, ?)'
+      )
+
+      let totalAdded = 0
+
+      for (const server of servers) {
+        // Ajouter 5-10 joueurs aléatoires par serveur
+        const numPlayers = Math.floor(Math.random() * 6) + 5 // Entre 5 et 10 joueurs
+        const shuffledNames = [...samplePlayerNames].sort(() => Math.random() - 0.5)
+
+        for (let i = 0; i < numPlayers && i < shuffledNames.length; i++) {
+          const name = shuffledNames[i]
+          // 10% de chance d'être banni, 20% de chance d'être whitelisté
+          const isBanned = Math.random() < 0.1 ? 1 : 0
+          const isWhitelisted = Math.random() < 0.2 ? 1 : 0
+
+          try {
+            insertPlayer.run(name, server.id, isBanned, isWhitelisted)
+            totalAdded++
+          } catch (error) {
+            // Ignorer les erreurs (joueur déjà existant, etc.)
+            console.error(`Erreur lors de l'ajout de ${name} au serveur ${server.name}:`, error)
+          }
+        }
+      }
+
+      return { success: true, totalAdded, message: `${totalAdded} joueur(s) ajouté(s) avec succès` }
+    } catch (error) {
+      console.error('Erreur lors de l\'ajout des joueurs de test:', error)
+      throw error
+    }
+  })
+
   createWindow()
 
   app.on('activate', function () {

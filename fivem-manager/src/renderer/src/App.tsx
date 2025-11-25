@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import ServerList from './components/ServerList'
 import ServerForm from './components/ServerForm'
-import ServerPlayers from './components/ServerPlayers'
+import ServerManagement from './components/ServerManagement'
 import { Server } from './types'
 
 function App(): React.JSX.Element {
@@ -25,6 +25,23 @@ function App(): React.JSX.Element {
       await loadData() // Recharger pour mettre à jour les états
     } catch (error) {
       console.error('Erreur lors de la vérification des statuts:', error)
+    }
+  }
+
+  const handleAddSamplePlayers = async () => {
+    if (confirm('Voulez-vous ajouter des joueurs de test à tous les serveurs ?')) {
+      try {
+        const result = await window.api.servers.addSamplePlayers()
+        if (result.success) {
+          alert(result.message)
+          await loadData()
+        } else {
+          alert(result.message)
+        }
+      } catch (error) {
+        console.error('Erreur lors de l\'ajout des joueurs:', error)
+        alert('Erreur lors de l\'ajout des joueurs')
+      }
     }
   }
 
@@ -99,9 +116,20 @@ function App(): React.JSX.Element {
     setManagingServer(server)
   }
 
-  const handleCloseServerPlayers = () => {
+  const handleCloseServerManagement = () => {
     setManagingServer(null)
     loadData() // Recharger les données pour mettre à jour les compteurs
+  }
+
+  // Si on est en mode gestion de serveur, afficher la page de gestion
+  if (managingServer) {
+    return (
+      <ServerManagement
+        server={managingServer}
+        onBack={handleCloseServerManagement}
+        onRefresh={loadData}
+      />
+    )
   }
 
   if (loading) {
@@ -137,6 +165,13 @@ function App(): React.JSX.Element {
                   🔄 Vérifier
                 </button>
                 <button
+                  onClick={handleAddSamplePlayers}
+                  className="px-3 sm:px-4 py-2 text-sm sm:text-base bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors"
+                  title="Ajouter des joueurs de test"
+                >
+                  👥 Ajouter joueurs
+                </button>
+                <button
                   onClick={() => {
                     setEditingServer(null)
                     setShowServerForm(!showServerForm)
@@ -169,14 +204,6 @@ function App(): React.JSX.Element {
             </div>
           </div>
         </div>
-        {/* Modal de gestion des joueurs d'un serveur */}
-        {managingServer && (
-          <ServerPlayers
-            server={managingServer}
-            onClose={handleCloseServerPlayers}
-            onRefresh={loadData}
-          />
-        )}
       </div>
     </div>
   )

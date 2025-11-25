@@ -39,7 +39,8 @@ const api = {
     delete: (id: number): Promise<{ success: boolean }> => ipcRenderer.invoke('servers:delete', id),
     getPlayerCount: (serverId: number): Promise<number> => ipcRenderer.invoke('servers:getPlayerCount', serverId),
     checkStatus: (serverId: number): Promise<{ isOnline: boolean }> => ipcRenderer.invoke('servers:checkStatus', serverId),
-    checkAllStatus: (): Promise<Array<{ id: number; isOnline: boolean }>> => ipcRenderer.invoke('servers:checkAllStatus')
+    checkAllStatus: (): Promise<Array<{ id: number; isOnline: boolean }>> => ipcRenderer.invoke('servers:checkAllStatus'),
+    addSamplePlayers: (): Promise<{ success: boolean; totalAdded: number; message: string }> => ipcRenderer.invoke('servers:addSamplePlayers')
   },
   // APIs pour les joueurs
   players: {
