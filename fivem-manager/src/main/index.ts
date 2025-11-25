@@ -4,6 +4,8 @@ import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import { initDatabase, getDatabase, closeDatabase } from './db'
 import { Socket } from 'net'
+import { request } from 'http'
+import { get } from 'https'
 
 function createWindow(): void {
   // Create the browser window.
@@ -61,6 +63,80 @@ app.whenReady().then(() => {
   ipcMain.on('ping', () => console.log('pong'))
 
   // ========== HANDLERS POUR LES SERVEURS ==========
+
+  // Récupérer les informations d'un serveur via l'API FiveM avec le code CFX
+  ipcMain.handle('servers:fetchFromCFX', async (_, cfxCode: string) => {
+    return new Promise((resolve, reject) => {
+      const url = `https://servers-frontend.fivem.net/api/servers/single/${cfxCode}`
+      
+      get(url, (res) => {
+        let data = ''
+
+        res.on('data', (chunk) => {
+          data += chunk
+        })
+
+        res.on('end', () => {
+          try {
+            const json = JSON.parse(data)
+            
+            if (json.Data) {
+              const serverData = json.Data
+              const connectEndPoints = json.connectEndPoints || []
+              
+              // Extraire IP et port depuis connectEndPoints (format: "IP:PORT")
+              let ip = ''
+              let port = 30120 // Port par défaut FiveM
+              
+              if (connectEndPoints.length > 0) {
+                const endpoint = connectEndPoints[0]
+                const [endpointIp, endpointPort] = endpoint.split(':')
+                ip = endpointIp
+                port = parseInt(endpointPort) || 30120
+              } else {
+                // Si pas d'endpoint, essayer de parser depuis d'autres champs
+                reject(new Error('Aucune adresse IP trouvée pour ce serveur'))
+                return
+              }
+
+              const vars = serverData.vars || {}
+              const resources = serverData.resources || []
+              
+              const serverInfo = {
+                name: serverData.hostname || vars.sv_projectName || 'Serveur FiveM',
+                ip: ip,
+                port: port,
+                description: vars.sv_projectDesc || serverData.sv_projectDesc || vars.sv_projectName || '',
+                is_online: 1, // On suppose qu'il est en ligne si on peut récupérer les infos
+                max_players: serverData.sv_maxclients || vars.sv_maxClients || 0,
+                current_players: serverData.clients || serverData.selfReportedClients || 0,
+                tags: vars.tags || '',
+                discord: vars.Discord || '',
+                owner_name: json.ownerName || '',
+                last_seen: json.lastSeen || '',
+                support_status: json.support_status || '',
+                resources_count: resources.length || 0,
+                cfx_code: cfxCode
+              }
+
+              resolve(serverInfo)
+            } else {
+              reject(new Error('Serveur non trouvé ou code CFX invalide'))
+            }
+          } catch (error) {
+            reject(new Error('Erreur lors du parsing des données: ' + (error as Error).message))
+          }
+        })
+      }).on('error', (error) => {
+        reject(new Error('Erreur lors de la récupération des données: ' + error.message))
+      })
+
+      // Timeout de 10 secondes
+      setTimeout(() => {
+        reject(new Error('Timeout: Le serveur ne répond pas'))
+      }, 10000)
+    })
+  })
   
   // Obtenir tous les serveurs
   ipcMain.handle('servers:getAll', () => {
@@ -85,12 +161,45 @@ app.whenReady().then(() => {
   })
 
   // Créer un serveur
-  ipcMain.handle('servers:create', (_, server: { name: string; ip: string; port: number; description?: string }) => {
+  ipcMain.handle('servers:create', (_, server: { 
+    name: string
+    ip: string
+    port: number
+    description?: string
+    max_players?: number
+    current_players?: number
+    tags?: string
+    discord?: string
+    owner_name?: string
+    last_seen?: string
+    support_status?: string
+    resources_count?: number
+    cfx_code?: string
+  }) => {
     try {
       const stmt = database.prepare(
-        'INSERT INTO servers (name, ip, port, description) VALUES (?, ?, ?, ?)'
+        `INSERT INTO servers (
+          name, ip, port, description, max_players, current_players, 
+          tags, discord, owner_name, last_seen, support_status, 
+          resources_count, cfx_code, is_online
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
       )
-      const result = stmt.run(server.name, server.ip, server.port, server.description || null)
+      const result = stmt.run(
+        server.name,
+        server.ip,
+        server.port,
+        server.description || null,
+        server.max_players || 0,
+        server.current_players || 0,
+        server.tags || null,
+        server.discord || null,
+        server.owner_name || null,
+        server.last_seen || null,
+        server.support_status || null,
+        server.resources_count || 0,
+        server.cfx_code || null,
+        1 // is_online par défaut à 1 si créé via CFX
+      )
       return { id: result.lastInsertRowid, ...server }
     } catch (error) {
       console.error('Erreur lors de la création du serveur:', error)
@@ -99,12 +208,47 @@ app.whenReady().then(() => {
   })
 
   // Mettre à jour un serveur
-  ipcMain.handle('servers:update', (_, id: number, server: { name: string; ip: string; port: number; description?: string }) => {
+  ipcMain.handle('servers:update', (_, id: number, server: { 
+    name: string
+    ip: string
+    port: number
+    description?: string
+    max_players?: number
+    current_players?: number
+    tags?: string
+    discord?: string
+    owner_name?: string
+    last_seen?: string
+    support_status?: string
+    resources_count?: number
+    cfx_code?: string
+  }) => {
     try {
       const stmt = database.prepare(
-        'UPDATE servers SET name = ?, ip = ?, port = ?, description = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?'
+        `UPDATE servers SET 
+          name = ?, ip = ?, port = ?, description = ?, 
+          max_players = ?, current_players = ?, tags = ?, 
+          discord = ?, owner_name = ?, last_seen = ?, 
+          support_status = ?, resources_count = ?, cfx_code = ?,
+          updated_at = CURRENT_TIMESTAMP 
+        WHERE id = ?`
       )
-      stmt.run(server.name, server.ip, server.port, server.description || null, id)
+      stmt.run(
+        server.name,
+        server.ip,
+        server.port,
+        server.description || null,
+        server.max_players || 0,
+        server.current_players || 0,
+        server.tags || null,
+        server.discord || null,
+        server.owner_name || null,
+        server.last_seen || null,
+        server.support_status || null,
+        server.resources_count || 0,
+        server.cfx_code || null,
+        id
+      )
       return { id, ...server }
     } catch (error) {
       console.error('Erreur lors de la mise à jour du serveur:', error)
@@ -262,29 +406,80 @@ app.whenReady().then(() => {
     }
   })
 
-  // Fonction pour vérifier si un serveur est en ligne
+  // Fonction pour vérifier si un serveur FiveM est en ligne
+  // Essaie d'abord l'API HTTP FiveM (port +1), puis le port TCP direct
   const checkServerStatus = (ip: string, port: number): Promise<boolean> => {
     return new Promise((resolve) => {
-      const socket = new Socket()
-      const timeout = 3000 // 3 secondes de timeout
+      // FiveM expose une API HTTP sur le port +1 (ex: 30120 -> 30121)
+      const httpPort = port + 1
+      const apiUrl = `http://${ip}:${httpPort}/info.json`
 
-      socket.setTimeout(timeout)
-      socket.once('connect', () => {
-        socket.destroy()
-        resolve(true)
+      // Essayer d'abord l'API HTTP FiveM
+      const httpReq = request(
+        {
+          hostname: ip,
+          port: httpPort,
+          path: '/info.json',
+          method: 'GET',
+          timeout: 2000
+        },
+        (res) => {
+          // Si on reçoit une réponse (même erreur 404), le serveur est en ligne
+          resolve(res.statusCode !== undefined)
+          res.destroy()
+        }
+      )
+
+      httpReq.on('error', () => {
+        // Si l'API HTTP échoue, essayer une connexion TCP simple
+        const socket = new Socket()
+        const timeout = 2000 // 2 secondes de timeout
+
+        socket.setTimeout(timeout)
+        socket.once('connect', () => {
+          socket.destroy()
+          resolve(true)
+        })
+
+        socket.once('timeout', () => {
+          socket.destroy()
+          resolve(false)
+        })
+
+        socket.once('error', () => {
+          socket.destroy()
+          resolve(false)
+        })
+
+        socket.connect(port, ip)
       })
 
-      socket.once('timeout', () => {
-        socket.destroy()
-        resolve(false)
+      httpReq.on('timeout', () => {
+        httpReq.destroy()
+        // Essayer TCP en fallback
+        const socket = new Socket()
+        const timeout = 2000
+
+        socket.setTimeout(timeout)
+        socket.once('connect', () => {
+          socket.destroy()
+          resolve(true)
+        })
+
+        socket.once('timeout', () => {
+          socket.destroy()
+          resolve(false)
+        })
+
+        socket.once('error', () => {
+          socket.destroy()
+          resolve(false)
+        })
+
+        socket.connect(port, ip)
       })
 
-      socket.once('error', () => {
-        socket.destroy()
-        resolve(false)
-      })
-
-      socket.connect(port, ip)
+      httpReq.end()
     })
   }
 
@@ -333,6 +528,25 @@ app.whenReady().then(() => {
       return results
     } catch (error) {
       console.error('Erreur lors de la vérification des statuts:', error)
+      throw error
+    }
+  })
+
+  // Réinitialiser la base de données (supprimer toutes les données)
+  ipcMain.handle('database:reset', () => {
+    try {
+      // Supprimer tous les joueurs
+      database.prepare('DELETE FROM players').run()
+      
+      // Supprimer tous les serveurs
+      database.prepare('DELETE FROM servers').run()
+      
+      // Réinitialiser les séquences AUTOINCREMENT
+      database.prepare('DELETE FROM sqlite_sequence WHERE name IN ("servers", "players")').run()
+      
+      return { success: true, message: 'Base de données réinitialisée avec succès' }
+    } catch (error) {
+      console.error('Erreur lors de la réinitialisation de la base de données:', error)
       throw error
     }
   })

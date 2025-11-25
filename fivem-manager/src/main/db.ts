@@ -82,6 +82,29 @@ export function initDatabase(): Database.Database {
     // La colonne existe déjà, ignorer l'erreur
   }
 
+  // Migration : ajouter les nouvelles colonnes pour les infos de l'API FiveM
+  const newColumns = [
+    { name: 'max_players', type: 'INTEGER', default: '0' },
+    { name: 'current_players', type: 'INTEGER', default: '0' },
+    { name: 'tags', type: 'TEXT', default: "''" },
+    { name: 'discord', type: 'TEXT', default: "''" },
+    { name: 'owner_name', type: 'TEXT', default: "''" },
+    { name: 'last_seen', type: 'TEXT', default: "''" },
+    { name: 'support_status', type: 'TEXT', default: "''" },
+    { name: 'resources_count', type: 'INTEGER', default: '0' },
+    { name: 'cfx_code', type: 'TEXT', default: "''" }
+  ]
+
+  for (const column of newColumns) {
+    try {
+      db.exec(`
+        ALTER TABLE servers ADD COLUMN ${column.name} ${column.type} DEFAULT ${column.default};
+      `)
+    } catch (error) {
+      // La colonne existe déjà, ignorer l'erreur
+    }
+  }
+
   console.log('Base de données initialisée:', dbPath)
   return db
 }

@@ -40,7 +40,23 @@ const api = {
     getPlayerCount: (serverId: number): Promise<number> => ipcRenderer.invoke('servers:getPlayerCount', serverId),
     checkStatus: (serverId: number): Promise<{ isOnline: boolean }> => ipcRenderer.invoke('servers:checkStatus', serverId),
     checkAllStatus: (): Promise<Array<{ id: number; isOnline: boolean }>> => ipcRenderer.invoke('servers:checkAllStatus'),
-    addSamplePlayers: (): Promise<{ success: boolean; totalAdded: number; message: string }> => ipcRenderer.invoke('servers:addSamplePlayers')
+    addSamplePlayers: (): Promise<{ success: boolean; totalAdded: number; message: string }> => ipcRenderer.invoke('servers:addSamplePlayers'),
+    fetchFromCFX: (cfxCode: string): Promise<{
+      name: string
+      ip: string
+      port: number
+      description: string
+      is_online: number
+      max_players: number
+      current_players: number
+      tags: string
+      discord: string
+      owner_name: string
+      last_seen: string
+      support_status: string
+      resources_count: number
+      cfx_code: string
+    }> => ipcRenderer.invoke('servers:fetchFromCFX', cfxCode)
   },
   // APIs pour les joueurs
   players: {
@@ -57,6 +73,10 @@ const api = {
     unban: (id: number): Promise<{ success: boolean }> => ipcRenderer.invoke('players:unban', id),
     whitelist: (id: number): Promise<{ success: boolean }> => ipcRenderer.invoke('players:whitelist', id),
     unwhitelist: (id: number): Promise<{ success: boolean }> => ipcRenderer.invoke('players:unwhitelist', id)
+  },
+  // APIs pour la base de données
+  database: {
+    reset: (): Promise<{ success: boolean; message: string }> => ipcRenderer.invoke('database:reset')
   }
 }
 

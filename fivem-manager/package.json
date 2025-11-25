@@ -20,7 +20,8 @@
     "build:win": "npm run build && electron-builder --win",
     "build:mac": "electron-vite build && electron-builder --mac",
     "build:linux": "electron-vite build && electron-builder --linux",
-    "add-players": "node scripts/add-sample-players.js"
+    "add-players": "node scripts/add-sample-players.js",
+    "reset-db": "node scripts/reset-database.js"
   },
   "dependencies": {
     "@electron-toolkit/preload": "^3.0.2",

@@ -35,6 +35,22 @@ export interface API {
     checkStatus: (serverId: number) => Promise<{ isOnline: boolean }>
     checkAllStatus: () => Promise<Array<{ id: number; isOnline: boolean }>>
     addSamplePlayers: () => Promise<{ success: boolean; totalAdded: number; message: string }>
+    fetchFromCFX: (cfxCode: string) => Promise<{
+      name: string
+      ip: string
+      port: number
+      description: string
+      is_online: number
+      max_players: number
+      current_players: number
+      tags: string
+      discord: string
+      owner_name: string
+      last_seen: string
+      support_status: string
+      resources_count: number
+      cfx_code: string
+    }>
   }
   players: {
     getAll: () => Promise<Player[]>
@@ -47,6 +63,9 @@ export interface API {
     unban: (id: number) => Promise<{ success: boolean }>
     whitelist: (id: number) => Promise<{ success: boolean }>
     unwhitelist: (id: number) => Promise<{ success: boolean }>
+  }
+  database: {
+    reset: () => Promise<{ success: boolean; message: string }>
   }
 }
 

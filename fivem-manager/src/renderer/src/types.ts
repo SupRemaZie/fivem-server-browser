@@ -5,6 +5,15 @@ export interface Server {
   port: number
   description?: string
   is_online?: number | boolean
+  max_players?: number
+  current_players?: number
+  tags?: string
+  discord?: string
+  owner_name?: string
+  last_seen?: string
+  support_status?: string
+  resources_count?: number
+  cfx_code?: string
   created_at?: string
   updated_at?: string
 }
@@ -22,17 +31,37 @@ export interface Player {
   updated_at?: string
 }
 
+export interface DatabaseAPI {
+  reset: () => Promise<{ success: boolean; message: string }>
+}
+
 export interface API {
   servers: {
     getAll: () => Promise<Server[]>
     getById: (id: number) => Promise<Server>
-    create: (server: Omit<Server, 'id' | 'created_at' | 'updated_at' | 'is_online'>) => Promise<Server>
-    update: (id: number, server: Omit<Server, 'id' | 'created_at' | 'updated_at' | 'is_online'>) => Promise<Server>
+    create: (server: Omit<Server, 'id' | 'created_at' | 'updated_at'>) => Promise<Server>
+    update: (id: number, server: Omit<Server, 'id' | 'created_at' | 'updated_at'>) => Promise<Server>
     delete: (id: number) => Promise<{ success: boolean }>
     getPlayerCount: (serverId: number) => Promise<number>
     checkStatus: (serverId: number) => Promise<{ isOnline: boolean }>
     checkAllStatus: () => Promise<Array<{ id: number; isOnline: boolean }>>
     addSamplePlayers: () => Promise<{ success: boolean; totalAdded: number; message: string }>
+    fetchFromCFX: (cfxCode: string) => Promise<{
+      name: string
+      ip: string
+      port: number
+      description: string
+      is_online: number
+      max_players: number
+      current_players: number
+      tags: string
+      discord: string
+      owner_name: string
+      last_seen: string
+      support_status: string
+      resources_count: number
+      cfx_code: string
+    }>
   }
   players: {
     getAll: () => Promise<Player[]>
@@ -46,6 +75,7 @@ export interface API {
     whitelist: (id: number) => Promise<{ success: boolean }>
     unwhitelist: (id: number) => Promise<{ success: boolean }>
   }
+  database: DatabaseAPI
 }
 
 declare global {

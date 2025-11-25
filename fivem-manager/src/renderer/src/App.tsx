@@ -45,6 +45,21 @@ function App(): React.JSX.Element {
     }
   }
 
+  const handleResetDatabase = async () => {
+    if (confirm('⚠️ ATTENTION : Voulez-vous vraiment réinitialiser la base de données ?\n\nToutes les données (serveurs et joueurs) seront supprimées de manière permanente.\n\nCette action est irréversible !')) {
+      try {
+        const result = await window.api.database.reset()
+        if (result.success) {
+          alert(result.message)
+          await loadData()
+        }
+      } catch (error) {
+        console.error('Erreur lors de la réinitialisation:', error)
+        alert('Erreur lors de la réinitialisation de la base de données')
+      }
+    }
+  }
+
   const loadData = async () => {
     try {
       setLoading(true)
@@ -156,7 +171,7 @@ function App(): React.JSX.Element {
           <div className="flex-1 flex flex-col min-h-0">
             <div className="flex justify-between items-center mb-4 flex-shrink-0 gap-2">
               <h2 className="text-xl sm:text-2xl font-semibold text-gray-800">Serveurs</h2>
-              <div className="flex gap-2">
+              <div className="flex gap-2 flex-wrap">
                 <button
                   onClick={checkAllServersStatus}
                   className="px-3 sm:px-4 py-2 text-sm sm:text-base bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
@@ -170,6 +185,13 @@ function App(): React.JSX.Element {
                   title="Ajouter des joueurs de test"
                 >
                   👥 Ajouter joueurs
+                </button>
+                <button
+                  onClick={handleResetDatabase}
+                  className="px-3 sm:px-4 py-2 text-sm sm:text-base bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
+                  title="Réinitialiser la base de données"
+                >
+                  🗑️ Reset DB
                 </button>
                 <button
                   onClick={() => {
