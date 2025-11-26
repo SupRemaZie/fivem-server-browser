@@ -36,19 +36,39 @@ jobs:
         working-directory: ./fivem-manager
         run: npm install --legacy-peer-deps
 
+      - name: Install snapcraft (Linux only)
+        if: matrix.platform == 'linux'
+        run: |
+          sudo snap install snapcraft --classic
+
+      - name: Clear electron-builder cache (Linux only)
+        if: matrix.platform == 'linux'
+        run: |
+          rm -rf ~/.cache/electron-builder/appimage || true
+          rm -rf ~/.cache/electron-builder/snap-template || true
+
       - name: Build application (Linux)
         if: matrix.platform == 'linux'
         working-directory: ./fivem-manager
+        env:
+          CI: true
+          CSC_IDENTITY_AUTO_DISCOVERY: false
         run: npm run build:linux
 
       - name: Build application (Windows)
         if: matrix.platform == 'win'
         working-directory: ./fivem-manager
+        env:
+          CI: true
+          CSC_IDENTITY_AUTO_DISCOVERY: false
         run: npm run build:win
 
       - name: Build application (macOS)
         if: matrix.platform == 'mac'
         working-directory: ./fivem-manager
+        env:
+          CI: true
+          CSC_IDENTITY_AUTO_DISCOVERY: false
         run: npm run build:mac
 
       - name: Upload artifacts
