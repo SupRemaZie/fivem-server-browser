@@ -1,17 +1,14 @@
 /** @type {import('tailwindcss').Config} */
+// eslint-disable-next-line @typescript-eslint/no-require-imports, @typescript-eslint/no-unused-vars
 const path = require('path')
 
 // Construire les chemins absolus avec les patterns glob
 const rendererDir = __dirname.replace(/\\/g, '/') // Normaliser les séparateurs pour les globs
 
 module.exports = {
-  content: [
-    `${rendererDir}/index.html`,
-    `${rendererDir}/src/**/*.{js,ts,jsx,tsx}`,
-  ],
+  content: [`${rendererDir}/index.html`, `${rendererDir}/src/**/*.{js,ts,jsx,tsx}`],
   theme: {
-    extend: {},
+    extend: {}
   },
-  plugins: [],
+  plugins: []
 }
-

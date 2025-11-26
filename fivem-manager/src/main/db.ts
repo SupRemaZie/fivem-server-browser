@@ -65,7 +65,7 @@ export function initDatabase(): Database.Database {
     db.exec(`
       ALTER TABLE players ADD COLUMN is_banned INTEGER DEFAULT 0;
     `)
-  } catch (error) {
+  } catch {
     // La colonne existe déjà, ignorer l'erreur
   }
 
@@ -73,13 +73,13 @@ export function initDatabase(): Database.Database {
     db.exec(`
       ALTER TABLE players ADD COLUMN is_whitelisted INTEGER DEFAULT 1;
     `)
-  } catch (error) {
+  } catch {
     // La colonne existe déjà, mettre à jour les joueurs existants pour qu'ils soient whitelistés
     try {
       db.exec(`
         UPDATE players SET is_whitelisted = 1 WHERE is_whitelisted = 0 OR is_whitelisted IS NULL;
       `)
-    } catch (updateError) {
+    } catch {
       // Ignorer l'erreur
     }
   }
@@ -89,7 +89,7 @@ export function initDatabase(): Database.Database {
     db.exec(`
       ALTER TABLE servers ADD COLUMN is_online INTEGER DEFAULT 0;
     `)
-  } catch (error) {
+  } catch {
     // La colonne existe déjà, ignorer l'erreur
   }
 
@@ -98,7 +98,7 @@ export function initDatabase(): Database.Database {
     db.exec(`
       ALTER TABLE players ADD COLUMN ban_reason TEXT DEFAULT NULL;
     `)
-  } catch (error) {
+  } catch {
     // La colonne existe déjà, ignorer l'erreur
   }
 
@@ -122,7 +122,7 @@ export function initDatabase(): Database.Database {
       db.exec(`
         ALTER TABLE servers ADD COLUMN ${column.name} ${column.type} DEFAULT ${column.default};
       `)
-    } catch (error) {
+    } catch {
       // La colonne existe déjà, ignorer l'erreur
     }
   }
@@ -144,4 +144,3 @@ export function closeDatabase(): void {
     db = null
   }
 }
-

@@ -36,7 +36,7 @@ export interface Player {
 
 export type UserRole = 'admin' | 'moderator' | 'support' | 'viewer'
 
-export type Permission = 
+export type Permission =
   | 'servers.view'
   | 'servers.create'
   | 'servers.edit'
@@ -104,11 +104,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
     'players.unwhitelist',
     'logs.view'
   ],
-  viewer: [
-    'servers.view',
-    'players.view',
-    'logs.view'
-  ]
+  viewer: ['servers.view', 'players.view', 'logs.view']
 }
 
 export interface DatabaseAPI {
@@ -120,7 +116,10 @@ export interface API {
     getAll: () => Promise<Server[]>
     getById: (id: number) => Promise<Server>
     create: (server: Omit<Server, 'id' | 'created_at' | 'updated_at'>) => Promise<Server>
-    update: (id: number, server: Omit<Server, 'id' | 'created_at' | 'updated_at'>) => Promise<Server>
+    update: (
+      id: number,
+      server: Omit<Server, 'id' | 'created_at' | 'updated_at'>
+    ) => Promise<Server>
     delete: (id: number) => Promise<{ success: boolean }>
     getPlayerCount: (serverId: number) => Promise<number>
     checkStatus: (serverId: number) => Promise<{ isOnline: boolean }>
@@ -149,8 +148,33 @@ export interface API {
     getAll: () => Promise<Player[]>
     getById: (id: number) => Promise<Player>
     getByServerId: (serverId: number) => Promise<Player[]>
-    create: (player: Omit<Player, 'id' | 'created_at' | 'updated_at' | 'server_name' | 'server_ip' | 'server_port' | 'is_banned' | 'is_whitelisted'>) => Promise<Player>
-    update: (id: number, player: Omit<Player, 'id' | 'created_at' | 'updated_at' | 'server_name' | 'server_ip' | 'server_port' | 'is_banned' | 'is_whitelisted'>) => Promise<Player>
+    create: (
+      player: Omit<
+        Player,
+        | 'id'
+        | 'created_at'
+        | 'updated_at'
+        | 'server_name'
+        | 'server_ip'
+        | 'server_port'
+        | 'is_banned'
+        | 'is_whitelisted'
+      >
+    ) => Promise<Player>
+    update: (
+      id: number,
+      player: Omit<
+        Player,
+        | 'id'
+        | 'created_at'
+        | 'updated_at'
+        | 'server_name'
+        | 'server_ip'
+        | 'server_port'
+        | 'is_banned'
+        | 'is_whitelisted'
+      >
+    ) => Promise<Player>
     delete: (id: number) => Promise<{ success: boolean }>
     ban: (id: number, reason: string) => Promise<{ success: boolean }>
     unban: (id: number) => Promise<{ success: boolean }>
@@ -168,4 +192,3 @@ declare global {
     api: API
   }
 }
-

@@ -16,7 +16,7 @@ export default function Login(): React.JSX.Element {
     try {
       const success = await login(username, password)
       if (!success) {
-        setError('Nom d\'utilisateur ou mot de passe incorrect')
+        setError("Nom d'utilisateur ou mot de passe incorrect")
       }
     } catch (err) {
       setError('Une erreur est survenue lors de la connexion')
@@ -90,4 +90,3 @@ export default function Login(): React.JSX.Element {
     </div>
   )
 }
-

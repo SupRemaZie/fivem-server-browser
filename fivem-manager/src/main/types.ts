@@ -43,4 +43,3 @@ export interface CFXServerResponse {
   lastSeen?: string
   support_status?: string
 }
-

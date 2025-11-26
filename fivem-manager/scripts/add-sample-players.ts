@@ -26,7 +26,7 @@ const samplePlayerNames = [
   'Stephanie_Hall'
 ]
 
-async function addSamplePlayers() {
+async function addSamplePlayers(): Promise<void> {
   // Chemin vers la base de données
   const userDataPath = app.getPath('userData')
   const dbPath = join(userDataPath, 'fivem-manager.db')
@@ -37,7 +37,10 @@ async function addSamplePlayers() {
 
   try {
     // Récupérer tous les serveurs
-    const servers = db.prepare('SELECT id, name FROM servers').all() as Array<{ id: number; name: string }>
+    const servers = db.prepare('SELECT id, name FROM servers').all() as Array<{
+      id: number
+      name: string
+    }>
 
     if (servers.length === 0) {
       console.log('Aucun serveur trouvé dans la base de données.')
@@ -45,12 +48,14 @@ async function addSamplePlayers() {
     }
 
     console.log(`Trouvé ${servers.length} serveur(s):`)
-    servers.forEach(server => {
+    servers.forEach((server) => {
       console.log(`  - ${server.name} (ID: ${server.id})`)
     })
 
     // Pour chaque serveur, ajouter des joueurs
-    const insertPlayer = db.prepare('INSERT INTO players (name, server_id, is_banned, is_whitelisted) VALUES (?, ?, ?, ?)')
+    const insertPlayer = db.prepare(
+      'INSERT INTO players (name, server_id, is_banned, is_whitelisted) VALUES (?, ?, ?, ?)'
+    )
 
     let totalAdded = 0
 
@@ -69,7 +74,9 @@ async function addSamplePlayers() {
 
         try {
           insertPlayer.run(name, server.id, isBanned, isWhitelisted)
-          console.log(`  ✓ ${name}${isBanned ? ' (BANNI)' : ''}${isWhitelisted ? ' (WHITELIST)' : ''}`)
+          console.log(
+            `  ✓ ${name}${isBanned ? ' (BANNI)' : ''}${isWhitelisted ? ' (WHITELIST)' : ''}`
+          )
           totalAdded++
         } catch (error) {
           console.error(`  ✗ Erreur lors de l'ajout de ${name}:`, error)
@@ -96,4 +103,3 @@ if (require.main === module) {
 }
 
 export { addSamplePlayers }
-

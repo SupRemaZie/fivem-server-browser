@@ -7,7 +7,11 @@ interface ServerFormProps {
   onCancel: () => void
 }
 
-export default function ServerForm({ server, onSubmit, onCancel }: ServerFormProps): React.JSX.Element {
+export default function ServerForm({
+  server,
+  onSubmit,
+  onCancel
+}: ServerFormProps): React.JSX.Element {
   const [formData, setFormData] = useState({
     name: '',
     ip: '',
@@ -25,7 +29,9 @@ export default function ServerForm({ server, onSubmit, onCancel }: ServerFormPro
     banner_url: '',
     icon_version: null as number | null
   })
-  const [players, setPlayers] = useState<Array<{ name: string; id?: number; ping?: number; identifiers?: string[] }>>([])
+  const [players, setPlayers] = useState<
+    Array<{ name: string; id?: number; ping?: number; identifiers?: string[] }>
+  >([])
   const [resources, setResources] = useState<string[]>([])
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [cfxCode, setCfxCode] = useState('')
@@ -74,10 +80,11 @@ export default function ServerForm({ server, onSubmit, onCancel }: ServerFormPro
     setResources([])
     setCfxCode('')
     setFetchError(null)
-    
+
     // Charger les ressources existantes si on édite un serveur
     if (server?.id) {
-      window.api.resources.getByServerId(server.id)
+      window.api.resources
+        .getByServerId(server.id)
         .then(setResources)
         .catch((error) => {
           console.error('Erreur lors du chargement des ressources:', error)
@@ -131,10 +138,10 @@ export default function ServerForm({ server, onSubmit, onCancel }: ServerFormPro
     try {
       // Inclure les joueurs et ressources dans les données du serveur
       await onSubmit({ ...formData, players, resources } as any)
-      setFormData({ 
-        name: '', 
-        ip: '', 
-        port: 30120, 
+      setFormData({
+        name: '',
+        ip: '',
+        port: 30120,
         description: '',
         max_players: 0,
         current_players: 0,
@@ -164,7 +171,7 @@ export default function ServerForm({ server, onSubmit, onCancel }: ServerFormPro
       <h3 className="text-lg font-semibold mb-4 text-gray-900">
         {server ? 'Modifier le serveur' : 'Ajouter un serveur'}
       </h3>
-      
+
       {!server && (
         <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-md">
           <label htmlFor="cfxCode" className="block text-sm font-medium text-gray-700 mb-2">
@@ -194,11 +201,10 @@ export default function ServerForm({ server, onSubmit, onCancel }: ServerFormPro
               {isFetching ? 'Chargement...' : 'Récupérer'}
             </button>
           </div>
-          {fetchError && (
-            <p className="mt-2 text-sm text-red-600">{fetchError}</p>
-          )}
+          {fetchError && <p className="mt-2 text-sm text-red-600">{fetchError}</p>}
           <p className="mt-2 text-xs text-gray-500">
-            Entrez le code CFX du serveur (visible dans l'URL FiveM) pour récupérer automatiquement les informations
+            Entrez le code CFX du serveur (visible dans l'URL FiveM) pour récupérer automatiquement
+            les informations
           </p>
         </div>
       )}
@@ -280,4 +286,3 @@ export default function ServerForm({ server, onSubmit, onCancel }: ServerFormPro
     </div>
   )
 }
-

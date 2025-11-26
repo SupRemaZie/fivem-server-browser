@@ -7,7 +7,11 @@ interface ServerPlayersProps {
   onRefresh: () => void
 }
 
-export default function ServerPlayers({ server, onClose, onRefresh }: ServerPlayersProps): React.JSX.Element {
+export default function ServerPlayers({
+  server,
+  onClose,
+  onRefresh
+}: ServerPlayersProps): React.JSX.Element {
   const [players, setPlayers] = useState<Player[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -58,8 +62,8 @@ export default function ServerPlayers({ server, onClose, onRefresh }: ServerPlay
       await loadPlayers()
       onRefresh()
     } catch (error) {
-      console.error('Erreur lors de l\'ajout à la whitelist:', error)
-      alert('Erreur lors de l\'ajout à la whitelist')
+      console.error("Erreur lors de l'ajout à la whitelist:", error)
+      alert("Erreur lors de l'ajout à la whitelist")
     }
   }
 
@@ -88,12 +92,11 @@ export default function ServerPlayers({ server, onClose, onRefresh }: ServerPlay
         <div className="bg-indigo-600 text-white px-6 py-4 flex justify-between items-center">
           <div>
             <h2 className="text-2xl font-bold">Gestion des joueurs</h2>
-            <p className="text-indigo-100 mt-1">{server.name} ({server.ip}:{server.port})</p>
+            <p className="text-indigo-100 mt-1">
+              {server.name} ({server.ip}:{server.port})
+            </p>
           </div>
-          <button
-            onClick={onClose}
-            className="text-white hover:text-gray-200 text-2xl font-bold"
-          >
+          <button onClick={onClose} className="text-white hover:text-gray-200 text-2xl font-bold">
             ×
           </button>
         </div>
@@ -202,4 +205,3 @@ export default function ServerPlayers({ server, onClose, onRefresh }: ServerPlay
     </div>
   )
 }
-

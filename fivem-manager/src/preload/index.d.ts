@@ -29,8 +29,13 @@ export interface API {
   servers: {
     getAll: () => Promise<Server[]>
     getById: (id: number) => Promise<Server>
-    create: (server: Omit<Server, 'id' | 'created_at' | 'updated_at' | 'is_online'>) => Promise<Server>
-    update: (id: number, server: Omit<Server, 'id' | 'created_at' | 'updated_at' | 'is_online'>) => Promise<Server>
+    create: (
+      server: Omit<Server, 'id' | 'created_at' | 'updated_at' | 'is_online'>
+    ) => Promise<Server>
+    update: (
+      id: number,
+      server: Omit<Server, 'id' | 'created_at' | 'updated_at' | 'is_online'>
+    ) => Promise<Server>
     delete: (id: number) => Promise<{ success: boolean }>
     getPlayerCount: (serverId: number) => Promise<number>
     checkStatus: (serverId: number) => Promise<{ isOnline: boolean }>
@@ -59,8 +64,13 @@ export interface API {
     getAll: () => Promise<Player[]>
     getById: (id: number) => Promise<Player>
     getByServerId: (serverId: number) => Promise<Player[]>
-    create: (player: Omit<Player, 'id' | 'created_at' | 'updated_at' | 'is_banned' | 'is_whitelisted'>) => Promise<Player>
-    update: (id: number, player: Omit<Player, 'id' | 'created_at' | 'updated_at' | 'is_banned' | 'is_whitelisted'>) => Promise<Player>
+    create: (
+      player: Omit<Player, 'id' | 'created_at' | 'updated_at' | 'is_banned' | 'is_whitelisted'>
+    ) => Promise<Player>
+    update: (
+      id: number,
+      player: Omit<Player, 'id' | 'created_at' | 'updated_at' | 'is_banned' | 'is_whitelisted'>
+    ) => Promise<Player>
     delete: (id: number) => Promise<{ success: boolean }>
     ban: (id: number, reason: string) => Promise<{ success: boolean }>
     unban: (id: number) => Promise<{ success: boolean }>

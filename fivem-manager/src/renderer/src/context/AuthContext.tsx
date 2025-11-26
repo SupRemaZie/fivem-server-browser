@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
-import { User, UserRole, Permission, ROLE_PERMISSIONS } from '../types'
+import { User, Permission, ROLE_PERMISSIONS } from '../types'
 
 interface AuthContextType {
   user: User | null
@@ -13,7 +13,10 @@ interface AuthContextType {
   // Gestion des utilisateurs (admin seulement)
   getAllUsers: () => Promise<User[]>
   createUser: (userData: Omit<User, 'id' | 'created_at' | 'updated_at'>) => Promise<User>
-  updateUser: (id: number, userData: Partial<Omit<User, 'id' | 'created_at' | 'updated_at'>>) => Promise<User>
+  updateUser: (
+    id: number,
+    userData: Partial<Omit<User, 'id' | 'created_at' | 'updated_at'>>
+  ) => Promise<User>
   deleteUser: (id: number) => Promise<boolean>
 }
 
@@ -30,7 +33,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       try {
         setUser(JSON.parse(storedUser))
       } catch (error) {
-        console.error('Erreur lors du chargement de l\'utilisateur:', error)
+        console.error("Erreur lors du chargement de l'utilisateur:", error)
         localStorage.removeItem('currentUser')
       }
     }
@@ -67,12 +70,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       // Rechercher l'utilisateur
-      const foundUser = users.find(
-        u => u.username === username && u.password === password
-      )
+      const foundUser = users.find((u) => u.username === username && u.password === password)
 
       if (foundUser) {
         // Créer une copie sans le mot de passe
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { password: _, ...userWithoutPassword } = foundUser
         setUser(userWithoutPassword as User)
         return true
@@ -91,12 +93,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const getUserPermissions = (): Permission[] => {
     if (!user) return []
-    
+
     // Si l'utilisateur a des permissions personnalisées, les utiliser
     if (user.permissions && user.permissions.length > 0) {
       return user.permissions
     }
-    
+
     // Sinon, utiliser les permissions par défaut du rôle
     return ROLE_PERMISSIONS[user.role] || []
   }
@@ -108,11 +110,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   const hasAnyPermission = (permissions: Permission[]): boolean => {
-    return permissions.some(permission => hasPermission(permission))
+    return permissions.some((permission) => hasPermission(permission))
   }
 
   const hasAllPermissions = (permissions: Permission[]): boolean => {
-    return permissions.every(permission => hasPermission(permission))
+    return permissions.every((permission) => hasPermission(permission))
   }
 
   // Fonctions de gestion des utilisateurs (admin seulement)
@@ -121,6 +123,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const storedUsers = localStorage.getItem('users')
       const users: User[] = storedUsers ? JSON.parse(storedUsers) : []
       // Retourner les utilisateurs sans les mots de passe
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       return users.map(({ password: _, ...userWithoutPassword }) => userWithoutPassword as User)
     } catch (error) {
       console.error('Erreur lors de la récupération des utilisateurs:', error)
@@ -128,19 +131,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }
 
-  const createUser = async (userData: Omit<User, 'id' | 'created_at' | 'updated_at'>): Promise<User> => {
+  const createUser = async (
+    userData: Omit<User, 'id' | 'created_at' | 'updated_at'>
+  ): Promise<User> => {
     try {
       const storedUsers = localStorage.getItem('users')
       const users: User[] = storedUsers ? JSON.parse(storedUsers) : []
-      
+
       // Vérifier si le nom d'utilisateur existe déjà
-      if (users.some(u => u.username === userData.username)) {
-        throw new Error('Ce nom d\'utilisateur existe déjà')
+      if (users.some((u) => u.username === userData.username)) {
+        throw new Error("Ce nom d'utilisateur existe déjà")
       }
 
       const newUser: User = {
         ...userData,
-        id: users.length > 0 ? Math.max(...users.map(u => u.id || 0)) + 1 : 1,
+        id: users.length > 0 ? Math.max(...users.map((u) => u.id || 0)) + 1 : 1,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
       }
@@ -149,27 +154,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       localStorage.setItem('users', JSON.stringify(users))
 
       // Retourner sans le mot de passe
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { password: _, ...userWithoutPassword } = newUser
       return userWithoutPassword as User
     } catch (error) {
-      console.error('Erreur lors de la création de l\'utilisateur:', error)
+      console.error("Erreur lors de la création de l'utilisateur:", error)
       throw error
     }
   }
 
-  const updateUser = async (id: number, userData: Partial<Omit<User, 'id' | 'created_at' | 'updated_at'>>): Promise<User> => {
+  const updateUser = async (
+    id: number,
+    userData: Partial<Omit<User, 'id' | 'created_at' | 'updated_at'>>
+  ): Promise<User> => {
     try {
       const storedUsers = localStorage.getItem('users')
       const users: User[] = storedUsers ? JSON.parse(storedUsers) : []
-      
-      const userIndex = users.findIndex(u => u.id === id)
+
+      const userIndex = users.findIndex((u) => u.id === id)
       if (userIndex === -1) {
         throw new Error('Utilisateur non trouvé')
       }
 
       // Vérifier si le nom d'utilisateur existe déjà (sauf pour l'utilisateur actuel)
-      if (userData.username && users.some((u, index) => u.username === userData.username && index !== userIndex)) {
-        throw new Error('Ce nom d\'utilisateur existe déjà')
+      if (
+        userData.username &&
+        users.some((u, index) => u.username === userData.username && index !== userIndex)
+      ) {
+        throw new Error("Ce nom d'utilisateur existe déjà")
       }
 
       const updatedUser: User = {
@@ -184,15 +196,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       // Si l'utilisateur modifié est l'utilisateur connecté, mettre à jour l'état
       if (user && user.id === id) {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { password: _, ...userWithoutPassword } = updatedUser
         setUser(userWithoutPassword as User)
       }
 
       // Retourner sans le mot de passe
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { password: _, ...userWithoutPassword } = updatedUser
       return userWithoutPassword as User
     } catch (error) {
-      console.error('Erreur lors de la mise à jour de l\'utilisateur:', error)
+      console.error("Erreur lors de la mise à jour de l'utilisateur:", error)
       throw error
     }
   }
@@ -201,13 +215,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const storedUsers = localStorage.getItem('users')
       const users: User[] = storedUsers ? JSON.parse(storedUsers) : []
-      
+
       // Ne pas permettre la suppression de l'utilisateur connecté
       if (user && user.id === id) {
         throw new Error('Vous ne pouvez pas supprimer votre propre compte')
       }
 
-      const filteredUsers = users.filter(u => u.id !== id)
+      const filteredUsers = users.filter((u) => u.id !== id)
       if (filteredUsers.length === users.length) {
         throw new Error('Utilisateur non trouvé')
       }
@@ -215,7 +229,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       localStorage.setItem('users', JSON.stringify(filteredUsers))
       return true
     } catch (error) {
-      console.error('Erreur lors de la suppression de l\'utilisateur:', error)
+      console.error("Erreur lors de la suppression de l'utilisateur:", error)
       throw error
     }
   }
@@ -242,6 +256,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   )
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useAuth() {
   const context = useContext(AuthContext)
   if (context === undefined) {
@@ -249,4 +264,3 @@ export function useAuth() {
   }
   return context
 }
-

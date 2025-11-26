@@ -4,11 +4,21 @@ import { Player, Server } from '../types'
 interface PlayerFormProps {
   player?: Player | null
   servers: Server[]
-  onSubmit: (player: Omit<Player, 'id' | 'created_at' | 'updated_at' | 'server_name' | 'server_ip' | 'server_port'>) => Promise<void>
+  onSubmit: (
+    player: Omit<
+      Player,
+      'id' | 'created_at' | 'updated_at' | 'server_name' | 'server_ip' | 'server_port'
+    >
+  ) => Promise<void>
   onCancel: () => void
 }
 
-export default function PlayerForm({ player, servers, onSubmit, onCancel }: PlayerFormProps): React.JSX.Element {
+export default function PlayerForm({
+  player,
+  servers,
+  onSubmit,
+  onCancel
+}: PlayerFormProps): React.JSX.Element {
   const [formData, setFormData] = useState({
     name: '',
     server_id: 0
@@ -91,9 +101,7 @@ export default function PlayerForm({ player, servers, onSubmit, onCancel }: Play
             )}
           </select>
           {servers.length === 0 && (
-            <p className="mt-1 text-sm text-gray-500">
-              Veuillez d'abord ajouter un serveur
-            </p>
+            <p className="mt-1 text-sm text-gray-500">Veuillez d'abord ajouter un serveur</p>
           )}
         </div>
         <div className="flex justify-end space-x-3">
@@ -116,4 +124,3 @@ export default function PlayerForm({ player, servers, onSubmit, onCancel }: Play
     </div>
   )
 }
-

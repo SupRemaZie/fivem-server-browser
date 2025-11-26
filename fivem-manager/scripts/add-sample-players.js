@@ -33,7 +33,7 @@ function addSamplePlayers() {
   // Sur macOS: ~/Library/Application Support/fivem-manager/fivem-manager.db
   const platform = process.platform
   let userDataPath
-  
+
   if (platform === 'win32') {
     userDataPath = path.join(process.env.APPDATA || os.homedir(), 'fivem-manager')
   } else if (platform === 'darwin') {
@@ -41,7 +41,7 @@ function addSamplePlayers() {
   } else {
     userDataPath = path.join(os.homedir(), '.config', 'fivem-manager')
   }
-  
+
   const dbPath = path.join(userDataPath, 'fivem-manager.db')
 
   console.log('Connexion à la base de données:', dbPath)
@@ -58,12 +58,14 @@ function addSamplePlayers() {
     }
 
     console.log(`Trouvé ${servers.length} serveur(s):`)
-    servers.forEach(server => {
+    servers.forEach((server) => {
       console.log(`  - ${server.name} (ID: ${server.id})`)
     })
 
     // Pour chaque serveur, ajouter des joueurs
-    const insertPlayer = db.prepare('INSERT INTO players (name, server_id, is_banned, is_whitelisted) VALUES (?, ?, ?, ?)')
+    const insertPlayer = db.prepare(
+      'INSERT INTO players (name, server_id, is_banned, is_whitelisted) VALUES (?, ?, ?, ?)'
+    )
 
     let totalAdded = 0
 
@@ -107,4 +109,3 @@ if (require.main === module) {
 }
 
 module.exports = { addSamplePlayers }
-
