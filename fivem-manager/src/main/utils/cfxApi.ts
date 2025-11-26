@@ -72,7 +72,8 @@ function parseCFXResponse(json: CFXServerResponse, cfxCode: string): ServerInput
   const players = serverData.players || json.players || []
   
   // Extraire IP et port depuis connectEndPoints
-  const { ip, port } = parseConnectionEndpoint(serverData.connectEndPoints)
+  const ip= serverData.connectEndPoints
+  const port = DEFAULT_FIVEM_PORT
   
   console.log('Joueurs trouvés dans l\'API:', players.length)
   
@@ -112,31 +113,5 @@ function parseCFXResponse(json: CFXServerResponse, cfxCode: string): ServerInput
   })
 
   return serverInfo
-}
-
-/**
- * Parse les endpoints de connexion pour extraire IP et port
- */
-function parseConnectionEndpoint(connectEndPoints?: string | string[]): { ip: string; port: number } {
-  let ip = '127.0.0.1'
-  let port = DEFAULT_FIVEM_PORT
-  
-  if (connectEndPoints) {
-    const endpoints = Array.isArray(connectEndPoints) ? connectEndPoints : [connectEndPoints]
-    
-    if (endpoints.length > 0 && endpoints[0]) {
-      const endpoint = endpoints[0].toString()
-      const parts = endpoint.split(':')
-      
-      if (parts.length >= 2) {
-        ip = parts[0]
-        port = parseInt(parts[1]) || DEFAULT_FIVEM_PORT
-      } else if (parts.length === 1) {
-        ip = parts[0]
-      }
-    }
-  }
-  
-  return { ip, port }
 }
 
