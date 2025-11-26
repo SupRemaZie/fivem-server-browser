@@ -75,11 +75,11 @@ describe('cfxApi', () => {
       }
 
       vi.mocked(get).mockImplementation(
-        (_url, _options, callback: (res: IncomingMessage) => void) => {
+        (_url, _options, callback?: (res: IncomingMessage) => void) => {
           if (callback) {
-            callback(mockRes as IncomingMessage)
+            callback(mockRes as unknown as IncomingMessage)
           }
-          return mockRequest as ClientRequest
+          return mockRequest as unknown as ClientRequest
         }
       )
 
@@ -115,11 +115,11 @@ describe('cfxApi', () => {
       }
 
       vi.mocked(get).mockImplementation(
-        (_url, _options, callback: (res: IncomingMessage) => void) => {
+        (_url, _options, callback?: (res: IncomingMessage) => void) => {
           if (callback) {
-            callback(mockRes as IncomingMessage)
+            callback(mockRes as unknown as IncomingMessage)
           }
-          return mockRequest as ClientRequest
+          return mockRequest as unknown as ClientRequest
         }
       )
 
@@ -148,11 +148,11 @@ describe('cfxApi', () => {
       }
 
       vi.mocked(get).mockImplementation(
-        (_url, _options, callback: (res: IncomingMessage) => void) => {
+        (_url, _options, callback?: (res: IncomingMessage) => void) => {
           if (callback) {
-            callback(mockRes as IncomingMessage)
+            callback(mockRes as unknown as IncomingMessage)
           }
-          return mockRequest as ClientRequest
+          return mockRequest as unknown as ClientRequest
         }
       )
 
@@ -170,7 +170,7 @@ describe('cfxApi', () => {
       }
 
       vi.mocked(get).mockImplementation(() => {
-        return mockRequest as ClientRequest
+        return mockRequest as unknown as ClientRequest
       })
 
       const promise = fetchServerFromCFX('abc123')

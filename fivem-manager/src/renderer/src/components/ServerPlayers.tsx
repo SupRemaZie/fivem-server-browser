@@ -35,7 +35,7 @@ export default function ServerPlayers({
   const handleBan = async (playerId: number) => {
     if (confirm('Êtes-vous sûr de vouloir bannir ce joueur ?')) {
       try {
-        await window.api.players.ban(playerId)
+        await window.api.players.ban(playerId, '')
         await loadPlayers()
         onRefresh()
       } catch (error) {

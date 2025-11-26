@@ -74,7 +74,12 @@ function parseCFXResponse(json: CFXServerResponse, cfxCode: string): ServerInput
   const players = serverData.players || json.players || []
 
   // Extraire IP et port depuis connectEndPoints
-  const ip = serverData.connectEndPoints
+  const connectEndPoints = serverData.connectEndPoints
+  const ip = typeof connectEndPoints === 'string' 
+    ? connectEndPoints 
+    : Array.isArray(connectEndPoints) && connectEndPoints.length > 0
+    ? connectEndPoints[0]
+    : ''
   const port = DEFAULT_FIVEM_PORT
 
   console.log("Joueurs trouvés dans l'API:", players.length)
