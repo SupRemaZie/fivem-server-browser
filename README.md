@@ -153,7 +153,6 @@ npm run build:linux  # Linux
    - **👥 Joueurs** : voir et gérer les joueurs (bannir, débannir, whitelist)
    - **📦 Ressources** : voir la liste complète des ressources
    - **🚫 Bans** : voir uniquement les joueurs bannis
-   - **📋 Logs** : (à venir)
 
 ### Rafraîchir les serveurs
 

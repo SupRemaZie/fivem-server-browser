@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Server, Player } from '../types'
+import { useAuth } from '../context/AuthContext'
 
 interface ServerPlayersProps {
   server: Server
@@ -12,6 +13,7 @@ export default function ServerPlayers({
   onClose,
   onRefresh
 }: ServerPlayersProps): React.JSX.Element {
+  const { user: currentUser } = useAuth()
   const [players, setPlayers] = useState<Player[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -35,7 +37,7 @@ export default function ServerPlayers({
   const handleBan = async (playerId: number) => {
     if (confirm('Êtes-vous sûr de vouloir bannir ce joueur ?')) {
       try {
-        await window.api.players.ban(playerId, '')
+        await window.api.players.ban(playerId, 'Banni depuis la liste des joueurs', currentUser?.id)
         await loadPlayers()
         onRefresh()
       } catch (error) {

@@ -27,6 +27,7 @@ export interface Player {
   is_banned?: number | boolean
   is_whitelisted?: number | boolean
   ban_reason?: string
+  banned_by_user_id?: number | null
   server_name?: string
   server_ip?: string
   server_port?: number
@@ -176,7 +177,7 @@ export interface API {
       >
     ) => Promise<Player>
     delete: (id: number) => Promise<{ success: boolean }>
-    ban: (id: number, reason: string) => Promise<{ success: boolean }>
+    ban: (id: number, reason: string, userId?: number) => Promise<{ success: boolean }>
     unban: (id: number) => Promise<{ success: boolean }>
     whitelist: (id: number) => Promise<{ success: boolean }>
     unwhitelist: (id: number) => Promise<{ success: boolean }>

@@ -70,6 +70,9 @@ export default function ServerManagement({
         case 'bans': {
           const allPlayers = await window.api.players.getByServerId(server.id)
           setBannedPlayers(allPlayers.filter((p) => p.is_banned === 1 || p.is_banned === true))
+          // Charger les utilisateurs pour pouvoir afficher qui a banni
+          const usersData = await getAllUsers()
+          setAllUsers(usersData)
           break
         }
         case 'resources': {
@@ -121,7 +124,7 @@ export default function ServerManagement({
     }
 
     try {
-      await window.api.players.ban(playerToBan, banReason.trim())
+      await window.api.players.ban(playerToBan, banReason.trim(), currentUser?.id)
       setShowBanModal(false)
       setPlayerToBan(null)
       setBanReason('')
@@ -603,6 +606,9 @@ export default function ServerManagement({
                           Motif du ban
                         </th>
                         <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Banni par
+                        </th>
+                        <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                           Date de ban
                         </th>
                         <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -613,38 +619,50 @@ export default function ServerManagement({
                     <tbody className="bg-white divide-y divide-gray-200">
                       {bannedPlayers.length === 0 ? (
                         <tr>
-                          <td colSpan={4} className="px-4 sm:px-6 py-8 text-center text-gray-500">
+                          <td colSpan={5} className="px-4 sm:px-6 py-8 text-center text-gray-500">
                             Aucun joueur banni
                           </td>
                         </tr>
                       ) : (
-                        bannedPlayers.map((player) => (
-                          <tr key={player.id} className="hover:bg-gray-50">
-                            <td className="px-4 sm:px-6 py-3 text-sm font-medium text-gray-900">
-                              {player.name}
-                            </td>
-                            <td className="px-4 sm:px-6 py-3 text-sm text-gray-700">
-                              {player.ban_reason || (
-                                <span className="text-gray-400 italic">Aucun motif renseigné</span>
-                              )}
-                            </td>
-                            <td className="px-4 sm:px-6 py-3 text-sm text-gray-500">
-                              {player.updated_at
-                                ? new Date(player.updated_at).toLocaleDateString('fr-FR')
-                                : '-'}
-                            </td>
-                            <td className="px-4 sm:px-6 py-3 text-sm font-medium">
-                              {hasPermission('players.unban') && (
-                                <button
-                                  onClick={() => player.id && handleUnban(player.id)}
-                                  className="px-2 sm:px-3 py-1 text-xs bg-green-600 text-white rounded hover:bg-green-700"
-                                >
-                                  Débannir
-                                </button>
-                              )}
-                            </td>
-                          </tr>
-                        ))
+                        bannedPlayers.map((player) => {
+                          const bannedByUser = player.banned_by_user_id
+                            ? allUsers.find((u) => u.id === player.banned_by_user_id)
+                            : null
+                          return (
+                            <tr key={player.id} className="hover:bg-gray-50">
+                              <td className="px-4 sm:px-6 py-3 text-sm font-medium text-gray-900">
+                                {player.name}
+                              </td>
+                              <td className="px-4 sm:px-6 py-3 text-sm text-gray-700">
+                                {player.ban_reason || (
+                                  <span className="text-gray-400 italic">Aucun motif renseigné</span>
+                                )}
+                              </td>
+                              <td className="px-4 sm:px-6 py-3 text-sm text-gray-600">
+                                {bannedByUser ? (
+                                  <span className="font-medium">{bannedByUser.username}</span>
+                                ) : (
+                                  <span className="text-gray-400 italic">Inconnu</span>
+                                )}
+                              </td>
+                              <td className="px-4 sm:px-6 py-3 text-sm text-gray-500">
+                                {player.updated_at
+                                  ? new Date(player.updated_at).toLocaleDateString('fr-FR')
+                                  : '-'}
+                              </td>
+                              <td className="px-4 sm:px-6 py-3 text-sm font-medium">
+                                {hasPermission('players.unban') && (
+                                  <button
+                                    onClick={() => player.id && handleUnban(player.id)}
+                                    className="px-2 sm:px-3 py-1 text-xs bg-green-600 text-white rounded hover:bg-green-700"
+                                  >
+                                    Débannir
+                                  </button>
+                                )}
+                              </td>
+                            </tr>
+                          )
+                        })
                       )}
                     </tbody>
                   </table>

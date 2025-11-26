@@ -25,7 +25,7 @@ export function registerPlayerHandlers(database: Database.Database): void {
   ipcMain.handle('players:getByServerId', (_, serverId: number) => {
     try {
       const stmt = database.prepare(
-        'SELECT * FROM players WHERE server_id = ? ORDER BY created_at DESC'
+        'SELECT *, banned_by_user_id FROM players WHERE server_id = ? ORDER BY created_at DESC'
       )
       return stmt.all(serverId)
     } catch (error) {
@@ -86,12 +86,12 @@ export function registerPlayerHandlers(database: Database.Database): void {
   })
 
   // Bannir un joueur
-  ipcMain.handle('players:ban', (_, id: number, reason: string) => {
+  ipcMain.handle('players:ban', (_, id: number, reason: string, userId?: number) => {
     try {
       const stmt = database.prepare(
-        'UPDATE players SET is_banned = 1, ban_reason = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?'
+        'UPDATE players SET is_banned = 1, ban_reason = ?, banned_by_user_id = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?'
       )
-      stmt.run(reason || null, id)
+      stmt.run(reason || null, userId || null, id)
       return { success: true }
     } catch (error) {
       console.error('Erreur lors du ban du joueur:', error)

@@ -48,7 +48,7 @@ function resetDatabase() {
     console.log('  ✓ Serveurs supprimés')
 
     // Réinitialiser les séquences AUTOINCREMENT
-    db.prepare('DELETE FROM sqlite_sequence WHERE name IN ("servers", "players")').run()
+    db.prepare("DELETE FROM sqlite_sequence WHERE name IN ('servers', 'players')").run()
     console.log('  ✓ Séquences réinitialisées')
 
     console.log('\n✅ Base de données réinitialisée avec succès!')
