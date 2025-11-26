@@ -8,18 +8,7 @@ on:
 
 jobs:
   build:
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
-        include:
-          - os: ubuntu-latest
-            platform: linux
-          - os: windows-latest
-            platform: win
-          - os: macos-latest
-            platform: mac
-
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
@@ -36,53 +25,30 @@ jobs:
         working-directory: ./fivem-manager
         run: npm install --legacy-peer-deps
 
-      - name: Install snapcraft (Linux only)
-        if: matrix.platform == 'linux'
+      - name: Install snapcraft
         run: |
           sudo snap install snapcraft --classic
 
-      - name: Clear electron-builder cache (Linux only)
-        if: matrix.platform == 'linux'
+      - name: Clear electron-builder cache
         run: |
           rm -rf ~/.cache/electron-builder/appimage || true
           rm -rf ~/.cache/electron-builder/snap-template || true
 
-      - name: Build application (Linux)
-        if: matrix.platform == 'linux'
+      - name: Build application
         working-directory: ./fivem-manager
         env:
           CI: true
           CSC_IDENTITY_AUTO_DISCOVERY: false
         run: npm run build:linux
 
-      - name: Build application (Windows)
-        if: matrix.platform == 'win'
-        working-directory: ./fivem-manager
-        env:
-          CI: true
-          CSC_IDENTITY_AUTO_DISCOVERY: false
-        run: npm run build:win
-
-      - name: Build application (macOS)
-        if: matrix.platform == 'mac'
-        working-directory: ./fivem-manager
-        env:
-          CI: true
-          CSC_IDENTITY_AUTO_DISCOVERY: false
-        run: npm run build:mac
-
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.platform }}-build
+          name: linux-build
           path: |
             fivem-manager/dist/*.AppImage
             fivem-manager/dist/*.deb
             fivem-manager/dist/*.snap
-            fivem-manager/dist/*.exe
-            fivem-manager/dist/*.dmg
-            fivem-manager/dist/*.zip
-            fivem-manager/dist/*-setup.exe
             fivem-manager/dist/*.yml
           if-no-files-found: warn
           retention-days: 30
@@ -111,8 +77,6 @@ jobs:
         with:
           files: |
             artifacts/linux-build/**
-            artifacts/win-build/**
-            artifacts/mac-build/**
           draft: false
           prerelease: false
           generate_release_notes: true
