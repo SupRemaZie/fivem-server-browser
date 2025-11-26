@@ -47,7 +47,7 @@ linux:
     - AppImage
     - snap
     - deb
-  maintainer: electronjs.org
+  maintainer: SupRemaZie
   category: Utility
 appImage:
   artifactName: ${name}-${version}.${ext}
