@@ -6,7 +6,11 @@ interface PlayerListProps {
   onDelete: (id: number) => void
 }
 
-export default function PlayerList({ players, onEdit, onDelete }: PlayerListProps): React.JSX.Element {
+export default function PlayerList({
+  players,
+  onEdit,
+  onDelete
+}: PlayerListProps): React.JSX.Element {
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden">
       <div className="bg-gray-800 text-white px-6 py-4">
@@ -74,4 +78,3 @@ export default function PlayerList({ players, onEdit, onDelete }: PlayerListProp
     </div>
   )
 }
-

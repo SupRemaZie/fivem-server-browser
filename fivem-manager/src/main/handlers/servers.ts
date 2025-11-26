@@ -64,17 +64,17 @@ export function registerServerHandlers(database: Database.Database): void {
         1 // is_online par défaut à 1 si créé via CFX
       )
       const serverId = result.lastInsertRowid as number
-      
+
       // Ajouter les joueurs si fournis
       if (server.players && server.players.length > 0) {
         insertPlayers(database, server.players, serverId)
       }
-      
+
       // Ajouter les ressources si fournies
       if (server.resources && server.resources.length > 0) {
         insertResources(database, server.resources, serverId)
       }
-      
+
       return { id: serverId, ...server }
     } catch (error) {
       console.error('Erreur lors de la création du serveur:', error)
@@ -113,12 +113,12 @@ export function registerServerHandlers(database: Database.Database): void {
         server.icon_version || null,
         id
       )
-      
+
       // Mettre à jour les ressources si fournies
       if (Array.isArray(server.resources)) {
         updateResources(database, server.resources, id)
       }
-      
+
       return { id, ...server }
     } catch (error) {
       console.error('Erreur lors de la mise à jour du serveur:', error)
@@ -208,14 +208,16 @@ function insertPlayers(
   players: Array<{ name: string }>,
   serverId: number
 ): void {
-  const playerStmt = database.prepare('INSERT INTO players (name, server_id, is_whitelisted) VALUES (?, ?, 1)')
+  const playerStmt = database.prepare(
+    'INSERT INTO players (name, server_id, is_whitelisted) VALUES (?, ?, 1)'
+  )
   const insertMany = database.transaction((playersList: Array<{ name: string }>) => {
     for (const player of playersList) {
       try {
         playerStmt.run(player.name, serverId)
       } catch (error) {
         // Ignorer les erreurs (joueur déjà existant, etc.)
-        console.log('Erreur lors de l\'ajout du joueur', player.name, ':', error)
+        console.log("Erreur lors de l'ajout du joueur", player.name, ':', error)
       }
     }
   })
@@ -226,19 +228,17 @@ function insertPlayers(
 /**
  * Insère plusieurs ressources dans la base de données
  */
-function insertResources(
-  database: Database.Database,
-  resources: string[],
-  serverId: number
-): void {
-  const resourceStmt = database.prepare('INSERT OR IGNORE INTO resources (name, server_id) VALUES (?, ?)')
+function insertResources(database: Database.Database, resources: string[], serverId: number): void {
+  const resourceStmt = database.prepare(
+    'INSERT OR IGNORE INTO resources (name, server_id) VALUES (?, ?)'
+  )
   const insertResources = database.transaction((resourcesList: string[]) => {
     for (const resource of resourcesList) {
       try {
         resourceStmt.run(resource, serverId)
       } catch (error) {
         // Ignorer les erreurs (ressource déjà existante, etc.)
-        console.log('Erreur lors de l\'ajout de la ressource', resource, ':', error)
+        console.log("Erreur lors de l'ajout de la ressource", resource, ':', error)
       }
     }
   })
@@ -249,19 +249,14 @@ function insertResources(
 /**
  * Met à jour les ressources d'un serveur (supprime les anciennes et ajoute les nouvelles)
  */
-function updateResources(
-  database: Database.Database,
-  resources: string[],
-  serverId: number
-): void {
+function updateResources(database: Database.Database, resources: string[], serverId: number): void {
   // Supprimer les anciennes ressources
   const deleteStmt = database.prepare('DELETE FROM resources WHERE server_id = ?')
   deleteStmt.run(serverId)
-  
+
   // Ajouter les nouvelles ressources
   if (resources.length > 0) {
     insertResources(database, resources, serverId)
     console.log(`${resources.length} ressources mises à jour pour le serveur ${serverId}`)
   }
 }
-

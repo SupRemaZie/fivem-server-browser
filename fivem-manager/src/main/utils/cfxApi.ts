@@ -11,14 +11,14 @@ const DEFAULT_FIVEM_PORT = 30120
 export function fetchServerFromCFX(cfxCode: string): Promise<ServerInput> {
   return new Promise((resolve, reject) => {
     const url = `${CFX_API_BASE_URL}/${cfxCode}`
-    
+
     const options = {
       headers: {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-        'Accept': 'application/json'
+        Accept: 'application/json'
       }
     }
-    
+
     const request = get(url, options, (res) => {
       if (res.statusCode !== 200) {
         reject(new Error(`Erreur HTTP ${res.statusCode}: ${res.statusMessage}`))
@@ -34,9 +34,11 @@ export function fetchServerFromCFX(cfxCode: string): Promise<ServerInput> {
       res.on('end', () => {
         try {
           const json: CFXServerResponse = JSON.parse(data)
-          
+
           if (!json.Data) {
-            reject(new Error('Serveur non trouvé ou code CFX invalide. Structure de réponse inattendue.'))
+            reject(
+              new Error('Serveur non trouvé ou code CFX invalide. Structure de réponse inattendue.')
+            )
             return
           }
 
@@ -70,16 +72,21 @@ function parseCFXResponse(json: CFXServerResponse, cfxCode: string): ServerInput
   const vars = serverData.vars || {}
   const resources = serverData.resources || []
   const players = serverData.players || json.players || []
-  
+
   // Extraire IP et port depuis connectEndPoints
-  const ip= serverData.connectEndPoints
+  const connectEndPoints = serverData.connectEndPoints
+  const ip = typeof connectEndPoints === 'string' 
+    ? connectEndPoints 
+    : Array.isArray(connectEndPoints) && connectEndPoints.length > 0
+    ? connectEndPoints[0]
+    : ''
   const port = DEFAULT_FIVEM_PORT
-  
-  console.log('Joueurs trouvés dans l\'API:', players.length)
-  
+
+  console.log("Joueurs trouvés dans l'API:", players.length)
+
   const bannerUrl = json.ownerAvatar || ''
   console.log('Bannière/Logo trouvé (ownerAvatar):', bannerUrl || 'Aucune')
-  
+
   const serverInfo: ServerInput = {
     name: serverData.hostname || vars.sv_projectName || 'Serveur FiveM',
     ip,
@@ -105,13 +112,12 @@ function parseCFXResponse(json: CFXServerResponse, cfxCode: string): ServerInput
     }))
   }
 
-  console.log('Informations serveur extraites avec succès:', { 
-    name: serverInfo.name, 
-    ip: serverInfo.ip, 
+  console.log('Informations serveur extraites avec succès:', {
+    name: serverInfo.name,
+    ip: serverInfo.ip,
     port: serverInfo.port,
     players_count: serverInfo.players?.length || 0
   })
 
   return serverInfo
 }
-

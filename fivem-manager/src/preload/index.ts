@@ -32,15 +32,23 @@ const api = {
   servers: {
     getAll: (): Promise<Server[]> => ipcRenderer.invoke('servers:getAll'),
     getById: (id: number): Promise<Server> => ipcRenderer.invoke('servers:getById', id),
-    create: (server: Omit<Server, 'id' | 'created_at' | 'updated_at' | 'is_online'>): Promise<Server> =>
-      ipcRenderer.invoke('servers:create', server),
-    update: (id: number, server: Omit<Server, 'id' | 'created_at' | 'updated_at' | 'is_online'>): Promise<Server> =>
-      ipcRenderer.invoke('servers:update', id, server),
+    create: (
+      server: Omit<Server, 'id' | 'created_at' | 'updated_at' | 'is_online'>
+    ): Promise<Server> => ipcRenderer.invoke('servers:create', server),
+    update: (
+      id: number,
+      server: Omit<Server, 'id' | 'created_at' | 'updated_at' | 'is_online'>
+    ): Promise<Server> => ipcRenderer.invoke('servers:update', id, server),
     delete: (id: number): Promise<{ success: boolean }> => ipcRenderer.invoke('servers:delete', id),
-    getPlayerCount: (serverId: number): Promise<number> => ipcRenderer.invoke('servers:getPlayerCount', serverId),
-    checkStatus: (serverId: number): Promise<{ isOnline: boolean }> => ipcRenderer.invoke('servers:checkStatus', serverId),
-    checkAllStatus: (): Promise<Array<{ id: number; isOnline: boolean }>> => ipcRenderer.invoke('servers:checkAllStatus'),
-    fetchFromCFX: (cfxCode: string): Promise<{
+    getPlayerCount: (serverId: number): Promise<number> =>
+      ipcRenderer.invoke('servers:getPlayerCount', serverId),
+    checkStatus: (serverId: number): Promise<{ isOnline: boolean }> =>
+      ipcRenderer.invoke('servers:checkStatus', serverId),
+    checkAllStatus: (): Promise<Array<{ id: number; isOnline: boolean }>> =>
+      ipcRenderer.invoke('servers:checkAllStatus'),
+    fetchFromCFX: (
+      cfxCode: string
+    ): Promise<{
       name: string
       ip: string
       port: number
@@ -66,23 +74,31 @@ const api = {
     getById: (id: number): Promise<Player> => ipcRenderer.invoke('players:getById', id),
     getByServerId: (serverId: number): Promise<Player[]> =>
       ipcRenderer.invoke('players:getByServerId', serverId),
-    create: (player: Omit<Player, 'id' | 'created_at' | 'updated_at' | 'is_banned' | 'is_whitelisted'>): Promise<Player> =>
-      ipcRenderer.invoke('players:create', player),
-    update: (id: number, player: Omit<Player, 'id' | 'created_at' | 'updated_at' | 'is_banned' | 'is_whitelisted'>): Promise<Player> =>
-      ipcRenderer.invoke('players:update', id, player),
+    create: (
+      player: Omit<Player, 'id' | 'created_at' | 'updated_at' | 'is_banned' | 'is_whitelisted'>
+    ): Promise<Player> => ipcRenderer.invoke('players:create', player),
+    update: (
+      id: number,
+      player: Omit<Player, 'id' | 'created_at' | 'updated_at' | 'is_banned' | 'is_whitelisted'>
+    ): Promise<Player> => ipcRenderer.invoke('players:update', id, player),
     delete: (id: number): Promise<{ success: boolean }> => ipcRenderer.invoke('players:delete', id),
-    ban: (id: number, reason: string): Promise<{ success: boolean }> => ipcRenderer.invoke('players:ban', id, reason),
+    ban: (id: number, reason: string): Promise<{ success: boolean }> =>
+      ipcRenderer.invoke('players:ban', id, reason),
     unban: (id: number): Promise<{ success: boolean }> => ipcRenderer.invoke('players:unban', id),
-    whitelist: (id: number): Promise<{ success: boolean }> => ipcRenderer.invoke('players:whitelist', id),
-    unwhitelist: (id: number): Promise<{ success: boolean }> => ipcRenderer.invoke('players:unwhitelist', id)
+    whitelist: (id: number): Promise<{ success: boolean }> =>
+      ipcRenderer.invoke('players:whitelist', id),
+    unwhitelist: (id: number): Promise<{ success: boolean }> =>
+      ipcRenderer.invoke('players:unwhitelist', id)
   },
   // APIs pour les ressources
   resources: {
-    getByServerId: (serverId: number): Promise<string[]> => ipcRenderer.invoke('resources:getByServerId', serverId)
+    getByServerId: (serverId: number): Promise<string[]> =>
+      ipcRenderer.invoke('resources:getByServerId', serverId)
   },
   // APIs pour la base de données
   database: {
-    reset: (): Promise<{ success: boolean; message: string }> => ipcRenderer.invoke('database:reset')
+    reset: (): Promise<{ success: boolean; message: string }> =>
+      ipcRenderer.invoke('database:reset')
   }
 }
 

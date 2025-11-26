@@ -40,7 +40,7 @@ export default function UserManagement(): React.JSX.Element {
   }
 
   const handleRoleChange = (role: UserRole) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       role,
       permissions: ROLE_PERMISSIONS[role] || []
@@ -48,9 +48,9 @@ export default function UserManagement(): React.JSX.Element {
   }
 
   const handlePermissionToggle = (permission: Permission) => {
-    setFormData(prev => {
+    setFormData((prev) => {
       const permissions = prev.permissions.includes(permission)
-        ? prev.permissions.filter(p => p !== permission)
+        ? prev.permissions.filter((p) => p !== permission)
         : [...prev.permissions, permission]
       return { ...prev, permissions }
     })
@@ -61,7 +61,7 @@ export default function UserManagement(): React.JSX.Element {
     setError('')
 
     if (!formData.username.trim()) {
-      setError('Le nom d\'utilisateur est requis')
+      setError("Le nom d'utilisateur est requis")
       return
     }
 
@@ -78,9 +78,9 @@ export default function UserManagement(): React.JSX.Element {
           role: formData.role,
           permissions: formData.permissions.length > 0 ? formData.permissions : undefined
         }
-        
+
         if (formData.password.trim()) {
-          (updateData as any).password = formData.password
+          ;(updateData as any).password = formData.password
         }
 
         await updateUser(editingUser.id, updateData)
@@ -199,7 +199,9 @@ export default function UserManagement(): React.JSX.Element {
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden">
       <div className="px-4 sm:px-6 py-4 bg-gray-50 border-b border-gray-200 flex justify-between items-center">
-        <h2 className="text-lg font-semibold text-gray-900">Gestion des utilisateurs ({users.length})</h2>
+        <h2 className="text-lg font-semibold text-gray-900">
+          Gestion des utilisateurs ({users.length})
+        </h2>
         <button
           onClick={() => {
             setEditingUser(null)
@@ -262,11 +264,11 @@ export default function UserManagement(): React.JSX.Element {
                         <span className="ml-2 text-xs text-gray-500">(Vous)</span>
                       )}
                     </td>
-                    <td className="px-4 sm:px-6 py-3 text-sm text-gray-500">
-                      {user.email || '-'}
-                    </td>
+                    <td className="px-4 sm:px-6 py-3 text-sm text-gray-500">{user.email || '-'}</td>
                     <td className="px-4 sm:px-6 py-3 text-sm">
-                      <span className={`px-2 py-1 text-xs font-semibold rounded-full ${getRoleColor(user.role)}`}>
+                      <span
+                        className={`px-2 py-1 text-xs font-semibold rounded-full ${getRoleColor(user.role)}`}
+                      >
                         {getRoleLabel(user.role)}
                       </span>
                     </td>
@@ -275,24 +277,27 @@ export default function UserManagement(): React.JSX.Element {
                         {(user.permissions && user.permissions.length > 0
                           ? user.permissions
                           : ROLE_PERMISSIONS[user.role] || []
-                        ).slice(0, 3).map((permission) => (
-                          <span
-                            key={permission}
-                            className="px-2 py-1 text-xs rounded bg-indigo-100 text-indigo-800"
-                            title={permissionLabels[permission]}
-                          >
-                            {permissionLabels[permission].split(' ')[0]}
-                          </span>
-                        ))}
-                        {((user.permissions && user.permissions.length > 0
+                        )
+                          .slice(0, 3)
+                          .map((permission) => (
+                            <span
+                              key={permission}
+                              className="px-2 py-1 text-xs rounded bg-indigo-100 text-indigo-800"
+                              title={permissionLabels[permission]}
+                            >
+                              {permissionLabels[permission].split(' ')[0]}
+                            </span>
+                          ))}
+                        {(user.permissions && user.permissions.length > 0
                           ? user.permissions
                           : ROLE_PERMISSIONS[user.role] || []
-                        ).length > 3) && (
+                        ).length > 3 && (
                           <span className="px-2 py-1 text-xs text-gray-500">
-                            +{((user.permissions && user.permissions.length > 0
+                            +
+                            {(user.permissions && user.permissions.length > 0
                               ? user.permissions
                               : ROLE_PERMISSIONS[user.role] || []
-                            ).length - 3)}
+                            ).length - 3}
                           </span>
                         )}
                       </div>
@@ -347,7 +352,7 @@ export default function UserManagement(): React.JSX.Element {
                   id="username"
                   type="text"
                   value={formData.username}
-                  onChange={(e) => setFormData(prev => ({ ...prev, username: e.target.value }))}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, username: e.target.value }))}
                   required
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900 bg-white"
                 />
@@ -361,7 +366,7 @@ export default function UserManagement(): React.JSX.Element {
                   id="email"
                   type="email"
                   value={formData.email}
-                  onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, email: e.target.value }))}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900 bg-white"
                 />
               </div>
@@ -374,7 +379,7 @@ export default function UserManagement(): React.JSX.Element {
                   id="password"
                   type="password"
                   value={formData.password}
-                  onChange={(e) => setFormData(prev => ({ ...prev, password: e.target.value }))}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, password: e.target.value }))}
                   required={!editingUser}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900 bg-white"
                 />
@@ -396,7 +401,8 @@ export default function UserManagement(): React.JSX.Element {
                   <option value="admin">Administrateur</option>
                 </select>
                 <p className="mt-1 text-xs text-gray-500">
-                  Les permissions par défaut du rôle seront appliquées, mais vous pouvez les personnaliser ci-dessous.
+                  Les permissions par défaut du rôle seront appliquées, mais vous pouvez les
+                  personnaliser ci-dessous.
                 </p>
               </div>
 
@@ -413,13 +419,15 @@ export default function UserManagement(): React.JSX.Element {
                         onChange={() => handlePermissionToggle(permission)}
                         className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
                       />
-                      <span className="ml-2 text-sm text-gray-700">{permissionLabels[permission]}</span>
+                      <span className="ml-2 text-sm text-gray-700">
+                        {permissionLabels[permission]}
+                      </span>
                     </label>
                   ))}
                 </div>
                 <p className="mt-2 text-xs text-gray-500">
-                  {formData.permissions.length} permission(s) sélectionnée(s). 
-                  Si aucune permission n'est sélectionnée, les permissions par défaut du rôle seront utilisées.
+                  {formData.permissions.length} permission(s) sélectionnée(s). Si aucune permission
+                  n'est sélectionnée, les permissions par défaut du rôle seront utilisées.
                 </p>
               </div>
 
@@ -445,4 +453,3 @@ export default function UserManagement(): React.JSX.Element {
     </div>
   )
 }
-

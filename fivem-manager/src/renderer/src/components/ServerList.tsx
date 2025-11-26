@@ -8,7 +8,13 @@ interface ServerListProps {
   onManagePlayers?: (server: Server) => void
 }
 
-export default function ServerList({ servers, playerCounts, onEdit, onDelete, onManagePlayers }: ServerListProps): React.JSX.Element {
+export default function ServerList({
+  servers,
+  playerCounts,
+  onEdit,
+  onDelete,
+  onManagePlayers
+}: ServerListProps): React.JSX.Element {
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden h-full flex flex-col">
       <div className="bg-gray-800 text-white px-4 sm:px-6 py-3 flex-shrink-0">
@@ -62,7 +68,7 @@ export default function ServerList({ servers, playerCounts, onEdit, onDelete, on
                 const tags = server.tags ? server.tags.split(',').slice(0, 3).join(', ') : '-'
                 const discord = server.discord || '-'
                 const ownerName = server.owner_name || '-'
-                
+
                 return (
                   <tr key={server.id} className="hover:bg-gray-50">
                     <td className="px-2 sm:px-4 py-3 sm:py-4 whitespace-nowrap">
@@ -94,7 +100,8 @@ export default function ServerList({ servers, playerCounts, onEdit, onDelete, on
                     <td className="px-2 sm:px-4 py-3 sm:py-4 whitespace-nowrap text-sm text-gray-500">
                       <div className="flex flex-col">
                         <span className="font-medium">
-                          {currentPlayers}{maxPlayers > 0 ? `/${maxPlayers}` : ''}
+                          {currentPlayers}
+                          {maxPlayers > 0 ? `/${maxPlayers}` : ''}
                         </span>
                         {server.resources_count !== undefined && server.resources_count > 0 && (
                           <span className="text-xs text-gray-400">
@@ -111,7 +118,7 @@ export default function ServerList({ servers, playerCounts, onEdit, onDelete, on
                     <td className="px-2 sm:px-4 py-3 sm:py-4 text-sm text-gray-500 hidden xl:table-cell">
                       <div className="truncate max-w-[150px]" title={discord}>
                         {discord !== '-' ? (
-                          <a 
+                          <a
                             href={discord.startsWith('http') ? discord : `https://${discord}`}
                             target="_blank"
                             rel="noopener noreferrer"
@@ -170,4 +177,3 @@ export default function ServerList({ servers, playerCounts, onEdit, onDelete, on
     </div>
   )
 }
-

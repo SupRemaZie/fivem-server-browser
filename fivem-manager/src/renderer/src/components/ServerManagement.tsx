@@ -10,8 +10,19 @@ interface ServerManagementProps {
 
 type Tab = 'logs' | 'players' | 'resources' | 'bans' | 'staff'
 
-export default function ServerManagement({ server, onBack, onRefresh }: ServerManagementProps): React.JSX.Element {
-  const { hasPermission, user: currentUser, getAllUsers, createUser, updateUser, deleteUser } = useAuth()
+export default function ServerManagement({
+  server,
+  onBack,
+  onRefresh
+}: ServerManagementProps): React.JSX.Element {
+  const {
+    hasPermission,
+    user: currentUser,
+    getAllUsers,
+    createUser,
+    updateUser,
+    deleteUser
+  } = useAuth()
   const [activeTab, setActiveTab] = useState<Tab>('players')
   const [players, setPlayers] = useState<Player[]>([])
   const [bannedPlayers, setBannedPlayers] = useState<Player[]>([])
@@ -51,19 +62,22 @@ export default function ServerManagement({ server, onBack, onRefresh }: ServerMa
     try {
       setLoading(true)
       switch (activeTab) {
-        case 'players':
+        case 'players': {
           const playersData = await window.api.players.getByServerId(server.id)
           setPlayers(playersData)
           break
-        case 'bans':
+        }
+        case 'bans': {
           const allPlayers = await window.api.players.getByServerId(server.id)
-          setBannedPlayers(allPlayers.filter(p => p.is_banned === 1 || p.is_banned === true))
+          setBannedPlayers(allPlayers.filter((p) => p.is_banned === 1 || p.is_banned === true))
           break
-        case 'resources':
+        }
+        case 'resources': {
           const allressources = await window.api.resources.getByServerId(server.id)
           setResources(allressources)
           break
-        case 'logs':
+        }
+        case 'logs': {
           // Simuler le chargement des logs (à implémenter avec l'API FiveM)
           setLogs([
             { id: 1, message: 'Serveur démarré', timestamp: new Date().toISOString() },
@@ -71,7 +85,8 @@ export default function ServerManagement({ server, onBack, onRefresh }: ServerMa
             { id: 3, message: 'Ressource es_extended chargée', timestamp: new Date().toISOString() }
           ])
           break
-        case 'staff':
+        }
+        case 'staff': {
           // Charger tous les utilisateurs et ceux assignés à ce serveur
           const usersData = await getAllUsers()
           setAllUsers(usersData)
@@ -82,6 +97,7 @@ export default function ServerManagement({ server, onBack, onRefresh }: ServerMa
             setServerStaffIds([])
           }
           break
+        }
       }
     } catch (error) {
       console.error('Erreur lors du chargement des données:', error)
@@ -98,7 +114,7 @@ export default function ServerManagement({ server, onBack, onRefresh }: ServerMa
 
   const handleBanConfirm = async () => {
     if (!playerToBan) return
-    
+
     if (banReason.trim() === '') {
       alert('Le motif du ban ne peut pas être vide')
       return
@@ -148,7 +164,7 @@ export default function ServerManagement({ server, onBack, onRefresh }: ServerMa
     setError('')
 
     if (!userForm.username.trim()) {
-      setError('Le nom d\'utilisateur est requis')
+      setError("Le nom d'utilisateur est requis")
       return
     }
 
@@ -165,9 +181,9 @@ export default function ServerManagement({ server, onBack, onRefresh }: ServerMa
           role: userForm.role,
           permissions: userForm.permissions.length > 0 ? userForm.permissions : undefined
         }
-        
+
         if (userForm.password.trim()) {
-          (updateData as any).password = userForm.password
+          ;(updateData as any).password = userForm.password
         }
 
         await updateUser(editingUser.id, updateData)
@@ -210,7 +226,7 @@ export default function ServerManagement({ server, onBack, onRefresh }: ServerMa
       await deleteUser(userId)
       // Retirer aussi du serveur si assigné
       if (server.id && serverStaffIds.includes(userId)) {
-        const updatedIds = serverStaffIds.filter(id => id !== userId)
+        const updatedIds = serverStaffIds.filter((id) => id !== userId)
         setServerStaffIds(updatedIds)
         localStorage.setItem(`server_staff_${server.id}`, JSON.stringify(updatedIds))
       }
@@ -234,7 +250,7 @@ export default function ServerManagement({ server, onBack, onRefresh }: ServerMa
   }
 
   const handleRoleChange = (role: UserRole) => {
-    setUserForm(prev => ({
+    setUserForm((prev) => ({
       ...prev,
       role,
       permissions: ROLE_PERMISSIONS[role] || []
@@ -242,9 +258,9 @@ export default function ServerManagement({ server, onBack, onRefresh }: ServerMa
   }
 
   const handlePermissionToggle = (permission: Permission) => {
-    setUserForm(prev => {
+    setUserForm((prev) => {
       const permissions = prev.permissions.includes(permission)
-        ? prev.permissions.filter(p => p !== permission)
+        ? prev.permissions.filter((p) => p !== permission)
         : [...prev.permissions, permission]
       return { ...prev, permissions }
     })
@@ -252,16 +268,16 @@ export default function ServerManagement({ server, onBack, onRefresh }: ServerMa
 
   const toggleStaffAssignment = (userId: number) => {
     if (!server.id) return
-    
+
     const isAssigned = serverStaffIds.includes(userId)
     let updatedIds: number[]
-    
+
     if (isAssigned) {
-      updatedIds = serverStaffIds.filter(id => id !== userId)
+      updatedIds = serverStaffIds.filter((id) => id !== userId)
     } else {
       updatedIds = [...serverStaffIds, userId]
     }
-    
+
     setServerStaffIds(updatedIds)
     localStorage.setItem(`server_staff_${server.id}`, JSON.stringify(updatedIds))
   }
@@ -287,7 +303,7 @@ export default function ServerManagement({ server, onBack, onRefresh }: ServerMa
   }
 
   const getServerStaff = (): User[] => {
-    return allUsers.filter(user => user.id && serverStaffIds.includes(user.id))
+    return allUsers.filter((user) => user.id && serverStaffIds.includes(user.id))
   }
 
   const allPermissions: Permission[] = [
@@ -329,16 +345,21 @@ export default function ServerManagement({ server, onBack, onRefresh }: ServerMa
   const allTabs = [
     { id: 'logs' as Tab, label: '📋 Logs', icon: '📋', permission: 'logs.view' as const },
     { id: 'players' as Tab, label: '👥 Joueurs', icon: '👥', permission: 'players.view' as const },
-    { id: 'resources' as Tab, label: '📦 Ressources', icon: '📦', permission: 'resources.view' as const },
+    {
+      id: 'resources' as Tab,
+      label: '📦 Ressources',
+      icon: '📦',
+      permission: 'resources.view' as const
+    },
     { id: 'bans' as Tab, label: '🚫 Bans', icon: '🚫', permission: 'players.view' as const },
     { id: 'staff' as Tab, label: '👔 Staff', icon: '👔', permission: 'staff.view' as const }
   ]
 
-  const tabs = allTabs.filter(tab => hasPermission(tab.permission))
-  
+  const tabs = allTabs.filter((tab) => hasPermission(tab.permission))
+
   // Si aucun onglet n'est accessible, rediriger vers le premier onglet disponible
   useEffect(() => {
-    if (tabs.length > 0 && !tabs.find(t => t.id === activeTab)) {
+    if (tabs.length > 0 && !tabs.find((t) => t.id === activeTab)) {
       setActiveTab(tabs[0].id)
     }
   }, [tabs, activeTab])
@@ -356,14 +377,18 @@ export default function ServerManagement({ server, onBack, onRefresh }: ServerMa
               ← Retour
             </button>
             <h1 className="text-xl sm:text-2xl font-bold inline">{server.name}</h1>
-            <p className="text-indigo-100 text-sm mt-1">{server.ip}:{server.port}</p>
+            <p className="text-indigo-100 text-sm mt-1">
+              {server.ip}:{server.port}
+            </p>
           </div>
           <div className="flex items-center gap-2">
-            <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-              server.is_online === 1 || server.is_online === true
-                ? 'bg-green-500 text-white'
-                : 'bg-red-500 text-white'
-            }`}>
+            <span
+              className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                server.is_online === 1 || server.is_online === true
+                  ? 'bg-green-500 text-white'
+                  : 'bg-red-500 text-white'
+              }`}
+            >
               {server.is_online === 1 || server.is_online === true ? 'En ligne' : 'Hors ligne'}
             </span>
           </div>
@@ -445,7 +470,9 @@ export default function ServerManagement({ server, onBack, onRefresh }: ServerMa
             {activeTab === 'players' && (
               <div className="bg-white rounded-lg shadow-md overflow-hidden">
                 <div className="px-4 sm:px-6 py-4 bg-gray-50 border-b border-gray-200 flex justify-between items-center">
-                  <h2 className="text-lg font-semibold text-gray-900">Joueurs ({players.length})</h2>
+                  <h2 className="text-lg font-semibold text-gray-900">
+                    Joueurs ({players.length})
+                  </h2>
                 </div>
                 <div className="overflow-auto max-h-[calc(100vh-300px)]">
                   <table className="min-w-full divide-y divide-gray-200">
@@ -495,25 +522,23 @@ export default function ServerManagement({ server, onBack, onRefresh }: ServerMa
                             </td>
                             <td className="px-4 sm:px-6 py-3 text-sm font-medium">
                               <div className="flex flex-wrap gap-2">
-                                {isBanned(player) ? (
-                                  hasPermission('players.unban') && (
-                                    <button
-                                      onClick={() => player.id && handleUnban(player.id)}
-                                      className="px-2 sm:px-3 py-1 text-xs bg-green-600 text-white rounded hover:bg-green-700"
-                                    >
-                                      Débannir
-                                    </button>
-                                  )
-                                ) : (
-                                  hasPermission('players.ban') && (
-                                    <button
-                                      onClick={() => player.id && handleBanClick(player.id)}
-                                      className="px-2 sm:px-3 py-1 text-xs bg-red-600 text-white rounded hover:bg-red-700"
-                                    >
-                                      Bannir
-                                    </button>
-                                  )
-                                )}
+                                {isBanned(player)
+                                  ? hasPermission('players.unban') && (
+                                      <button
+                                        onClick={() => player.id && handleUnban(player.id)}
+                                        className="px-2 sm:px-3 py-1 text-xs bg-green-600 text-white rounded hover:bg-green-700"
+                                      >
+                                        Débannir
+                                      </button>
+                                    )
+                                  : hasPermission('players.ban') && (
+                                      <button
+                                        onClick={() => player.id && handleBanClick(player.id)}
+                                        className="px-2 sm:px-3 py-1 text-xs bg-red-600 text-white rounded hover:bg-red-700"
+                                      >
+                                        Bannir
+                                      </button>
+                                    )}
                               </div>
                             </td>
                           </tr>
@@ -529,7 +554,9 @@ export default function ServerManagement({ server, onBack, onRefresh }: ServerMa
             {activeTab === 'resources' && (
               <div className="bg-white rounded-lg shadow-md overflow-hidden">
                 <div className="px-4 sm:px-6 py-4 bg-gray-50 border-b border-gray-200">
-                  <h2 className="text-lg font-semibold text-gray-900">Ressources du serveur ({resources.length})</h2>
+                  <h2 className="text-lg font-semibold text-gray-900">
+                    Ressources du serveur ({resources.length})
+                  </h2>
                 </div>
                 <div className="overflow-auto max-h-[calc(100vh-300px)]">
                   <div className="p-4 sm:p-6">
@@ -561,7 +588,9 @@ export default function ServerManagement({ server, onBack, onRefresh }: ServerMa
             {activeTab === 'bans' && (
               <div className="bg-white rounded-lg shadow-md overflow-hidden">
                 <div className="px-4 sm:px-6 py-4 bg-gray-50 border-b border-gray-200">
-                  <h2 className="text-lg font-semibold text-gray-900">Joueurs bannis ({bannedPlayers.length})</h2>
+                  <h2 className="text-lg font-semibold text-gray-900">
+                    Joueurs bannis ({bannedPlayers.length})
+                  </h2>
                 </div>
                 <div className="overflow-auto max-h-[calc(100vh-300px)]">
                   <table className="min-w-full divide-y divide-gray-200">
@@ -595,10 +624,14 @@ export default function ServerManagement({ server, onBack, onRefresh }: ServerMa
                               {player.name}
                             </td>
                             <td className="px-4 sm:px-6 py-3 text-sm text-gray-700">
-                              {player.ban_reason || <span className="text-gray-400 italic">Aucun motif renseigné</span>}
+                              {player.ban_reason || (
+                                <span className="text-gray-400 italic">Aucun motif renseigné</span>
+                              )}
                             </td>
                             <td className="px-4 sm:px-6 py-3 text-sm text-gray-500">
-                              {player.updated_at ? new Date(player.updated_at).toLocaleDateString('fr-FR') : '-'}
+                              {player.updated_at
+                                ? new Date(player.updated_at).toLocaleDateString('fr-FR')
+                                : '-'}
                             </td>
                             <td className="px-4 sm:px-6 py-3 text-sm font-medium">
                               {hasPermission('players.unban') && (
@@ -680,12 +713,16 @@ export default function ServerManagement({ server, onBack, onRefresh }: ServerMa
                       ) : (
                         allUsers.map((user) => {
                           const isAssigned = user.id && serverStaffIds.includes(user.id)
-                          const userPermissions = user.permissions && user.permissions.length > 0
-                            ? user.permissions
-                            : ROLE_PERMISSIONS[user.role] || []
-                          
+                          const userPermissions =
+                            user.permissions && user.permissions.length > 0
+                              ? user.permissions
+                              : ROLE_PERMISSIONS[user.role] || []
+
                           return (
-                            <tr key={user.id} className={`hover:bg-gray-50 ${isAssigned ? 'bg-green-50' : ''}`}>
+                            <tr
+                              key={user.id}
+                              className={`hover:bg-gray-50 ${isAssigned ? 'bg-green-50' : ''}`}
+                            >
                               <td className="px-4 sm:px-6 py-3 text-sm">
                                 {hasPermission('staff.manage') ? (
                                   <input
@@ -695,7 +732,11 @@ export default function ServerManagement({ server, onBack, onRefresh }: ServerMa
                                     className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
                                   />
                                 ) : (
-                                  <span className={isAssigned ? 'text-green-600 font-semibold' : 'text-gray-400'}>
+                                  <span
+                                    className={
+                                      isAssigned ? 'text-green-600 font-semibold' : 'text-gray-400'
+                                    }
+                                  >
                                     {isAssigned ? '✓' : '○'}
                                   </span>
                                 )}
@@ -710,7 +751,9 @@ export default function ServerManagement({ server, onBack, onRefresh }: ServerMa
                                 {user.email || '-'}
                               </td>
                               <td className="px-4 sm:px-6 py-3 text-sm">
-                                <span className={`px-2 py-1 text-xs font-semibold rounded-full ${getRoleColor(user.role)}`}>
+                                <span
+                                  className={`px-2 py-1 text-xs font-semibold rounded-full ${getRoleColor(user.role)}`}
+                                >
                                   {getRoleLabel(user.role)}
                                 </span>
                               </td>
@@ -785,7 +828,9 @@ export default function ServerManagement({ server, onBack, onRefresh }: ServerMa
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900 bg-white"
                 autoFocus
               />
-              <p className="mt-2 text-xs text-gray-500">Le motif est obligatoire et sera affiché dans l'onglet Bans.</p>
+              <p className="mt-2 text-xs text-gray-500">
+                Le motif est obligatoire et sera affiché dans l'onglet Bans.
+              </p>
             </div>
             <div className="px-6 py-4 border-t border-gray-200 flex justify-end gap-3">
               <button
@@ -830,7 +875,7 @@ export default function ServerManagement({ server, onBack, onRefresh }: ServerMa
                   id="username"
                   type="text"
                   value={userForm.username}
-                  onChange={(e) => setUserForm(prev => ({ ...prev, username: e.target.value }))}
+                  onChange={(e) => setUserForm((prev) => ({ ...prev, username: e.target.value }))}
                   required
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900 bg-white"
                   autoFocus
@@ -845,7 +890,7 @@ export default function ServerManagement({ server, onBack, onRefresh }: ServerMa
                   id="email"
                   type="email"
                   value={userForm.email}
-                  onChange={(e) => setUserForm(prev => ({ ...prev, email: e.target.value }))}
+                  onChange={(e) => setUserForm((prev) => ({ ...prev, email: e.target.value }))}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900 bg-white"
                 />
               </div>
@@ -858,7 +903,7 @@ export default function ServerManagement({ server, onBack, onRefresh }: ServerMa
                   id="password"
                   type="password"
                   value={userForm.password}
-                  onChange={(e) => setUserForm(prev => ({ ...prev, password: e.target.value }))}
+                  onChange={(e) => setUserForm((prev) => ({ ...prev, password: e.target.value }))}
                   required={!editingUser}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900 bg-white"
                 />
@@ -880,7 +925,8 @@ export default function ServerManagement({ server, onBack, onRefresh }: ServerMa
                   <option value="admin">Administrateur</option>
                 </select>
                 <p className="mt-1 text-xs text-gray-500">
-                  Les permissions par défaut du rôle seront appliquées, mais vous pouvez les personnaliser ci-dessous.
+                  Les permissions par défaut du rôle seront appliquées, mais vous pouvez les
+                  personnaliser ci-dessous.
                 </p>
               </div>
 
@@ -897,13 +943,15 @@ export default function ServerManagement({ server, onBack, onRefresh }: ServerMa
                         onChange={() => handlePermissionToggle(permission)}
                         className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
                       />
-                      <span className="ml-2 text-sm text-gray-700">{permissionLabels[permission]}</span>
+                      <span className="ml-2 text-sm text-gray-700">
+                        {permissionLabels[permission]}
+                      </span>
                     </label>
                   ))}
                 </div>
                 <p className="mt-2 text-xs text-gray-500">
-                  {userForm.permissions.length} permission(s) sélectionnée(s). 
-                  Si aucune permission n'est sélectionnée, les permissions par défaut du rôle seront utilisées.
+                  {userForm.permissions.length} permission(s) sélectionnée(s). Si aucune permission
+                  n'est sélectionnée, les permissions par défaut du rôle seront utilisées.
                 </p>
               </div>
 
@@ -929,4 +977,3 @@ export default function ServerManagement({ server, onBack, onRefresh }: ServerMa
     </div>
   )
 }
-

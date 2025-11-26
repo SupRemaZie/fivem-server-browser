@@ -48,9 +48,9 @@ export function checkServerStatus(ip: string, port: number): Promise<boolean> {
  */
 function tryTcpConnection(ip: string, port: number, resolve: (value: boolean) => void): void {
   const socket = new Socket()
-  
+
   socket.setTimeout(TCP_TIMEOUT)
-  
+
   socket.once('connect', () => {
     socket.destroy()
     resolve(true)
@@ -68,4 +68,3 @@ function tryTcpConnection(ip: string, port: number, resolve: (value: boolean) =>
 
   socket.connect(port, ip)
 }
-

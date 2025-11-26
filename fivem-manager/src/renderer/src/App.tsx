@@ -24,16 +24,16 @@ function AppContent(): React.JSX.Element {
       // Charger les compteurs de joueurs pour chaque serveur
       const counts: Record<number, number> = {}
       const countPromises = serversData
-        .filter(server => server.id)
+        .filter((server) => server.id)
         .map(async (server) => {
           try {
             const count = await window.api.servers.getPlayerCount(server.id!)
             counts[server.id!] = count
-          } catch (error) {
+          } catch {
             counts[server.id!] = 0
           }
         })
-      
+
       await Promise.all(countPromises)
       setPlayerCounts(counts)
     } catch (error) {
@@ -48,7 +48,6 @@ function AppContent(): React.JSX.Element {
     if (!authLoading && isAuthenticated) {
       loadData()
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated, authLoading])
 
   // Attendre que l'authentification soit chargée
@@ -81,7 +80,7 @@ function AppContent(): React.JSX.Element {
           try {
             // Récupérer les nouvelles informations depuis l'API CFX
             const serverInfo = await window.api.servers.fetchFromCFX(server.cfx_code)
-            
+
             // Mettre à jour le serveur avec les nouvelles informations
             await window.api.servers.update(server.id, {
               name: serverInfo.name,
@@ -102,7 +101,7 @@ function AppContent(): React.JSX.Element {
               resources: (serverInfo as any).resources || [],
               players: serverInfo.players || []
             } as any)
-            
+
             updatedCount++
           } catch (error) {
             console.error(`Erreur lors du rafraîchissement du serveur ${server.name}:`, error)
@@ -113,9 +112,11 @@ function AppContent(): React.JSX.Element {
 
       // Recharger les données
       await loadData()
-      
+
       if (updatedCount > 0 || errorCount > 0) {
-        alert(`${updatedCount} serveur(s) mis à jour${errorCount > 0 ? `, ${errorCount} erreur(s)` : ''}`)
+        alert(
+          `${updatedCount} serveur(s) mis à jour${errorCount > 0 ? `, ${errorCount} erreur(s)` : ''}`
+        )
       } else {
         alert('Aucun serveur avec code CFX trouvé')
       }
@@ -127,7 +128,11 @@ function AppContent(): React.JSX.Element {
   }
 
   const handleResetDatabase = async () => {
-    if (confirm('⚠️ ATTENTION : Voulez-vous vraiment réinitialiser la base de données ?\n\nToutes les données (serveurs et joueurs) seront supprimées de manière permanente.\n\nCette action est irréversible !')) {
+    if (
+      confirm(
+        '⚠️ ATTENTION : Voulez-vous vraiment réinitialiser la base de données ?\n\nToutes les données (serveurs et joueurs) seront supprimées de manière permanente.\n\nCette action est irréversible !'
+      )
+    ) {
       try {
         const result = await window.api.database.reset()
         if (result.success) {
@@ -142,7 +147,9 @@ function AppContent(): React.JSX.Element {
   }
 
   // Gestion des serveurs
-  const handleServerSubmit = async (server: Omit<Server, 'id' | 'created_at' | 'updated_at' | 'is_online'>) => {
+  const handleServerSubmit = async (
+    server: Omit<Server, 'id' | 'created_at' | 'updated_at' | 'is_online'>
+  ) => {
     try {
       if (editingServer?.id) {
         await window.api.servers.update(editingServer.id, server)
@@ -164,7 +171,11 @@ function AppContent(): React.JSX.Element {
   }
 
   const handleServerDelete = async (id: number) => {
-    if (confirm('Êtes-vous sûr de vouloir supprimer ce serveur ? Les joueurs associés seront également supprimés.')) {
+    if (
+      confirm(
+        'Êtes-vous sûr de vouloir supprimer ce serveur ? Les joueurs associés seront également supprimés.'
+      )
+    ) {
       try {
         await window.api.servers.delete(id)
         await loadData()
@@ -217,8 +228,12 @@ function AppContent(): React.JSX.Element {
         <div className="mb-4 flex-shrink-0">
           <div className="flex justify-between items-start">
             <div>
-              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">🚀 FiveM Server Manager</h1>
-              <p className="mt-1 text-sm sm:text-base text-gray-600">Gérez vos serveurs FiveM et leurs joueurs</p>
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
+                🚀 FiveM Server Manager
+              </h1>
+              <p className="mt-1 text-sm sm:text-base text-gray-600">
+                Gérez vos serveurs FiveM et leurs joueurs
+              </p>
             </div>
             <div className="flex items-center gap-3">
               <div className="text-right">

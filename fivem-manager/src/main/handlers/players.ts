@@ -24,7 +24,9 @@ export function registerPlayerHandlers(database: Database.Database): void {
   // Obtenir les joueurs d'un serveur
   ipcMain.handle('players:getByServerId', (_, serverId: number) => {
     try {
-      const stmt = database.prepare('SELECT * FROM players WHERE server_id = ? ORDER BY created_at DESC')
+      const stmt = database.prepare(
+        'SELECT * FROM players WHERE server_id = ? ORDER BY created_at DESC'
+      )
       return stmt.all(serverId)
     } catch (error) {
       console.error('Erreur lors de la récupération des joueurs du serveur:', error)
@@ -46,7 +48,9 @@ export function registerPlayerHandlers(database: Database.Database): void {
   // Créer un joueur (whitelisté par défaut)
   ipcMain.handle('players:create', (_, player: { name: string; server_id: number }) => {
     try {
-      const stmt = database.prepare('INSERT INTO players (name, server_id, is_whitelisted) VALUES (?, ?, 1)')
+      const stmt = database.prepare(
+        'INSERT INTO players (name, server_id, is_whitelisted) VALUES (?, ?, 1)'
+      )
       const result = stmt.run(player.name, player.server_id)
       return { id: result.lastInsertRowid, ...player, is_whitelisted: true }
     } catch (error) {
@@ -84,7 +88,9 @@ export function registerPlayerHandlers(database: Database.Database): void {
   // Bannir un joueur
   ipcMain.handle('players:ban', (_, id: number, reason: string) => {
     try {
-      const stmt = database.prepare('UPDATE players SET is_banned = 1, ban_reason = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?')
+      const stmt = database.prepare(
+        'UPDATE players SET is_banned = 1, ban_reason = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?'
+      )
       stmt.run(reason || null, id)
       return { success: true }
     } catch (error) {
@@ -96,7 +102,9 @@ export function registerPlayerHandlers(database: Database.Database): void {
   // Débannir un joueur
   ipcMain.handle('players:unban', (_, id: number) => {
     try {
-      const stmt = database.prepare('UPDATE players SET is_banned = 0, ban_reason = NULL, updated_at = CURRENT_TIMESTAMP WHERE id = ?')
+      const stmt = database.prepare(
+        'UPDATE players SET is_banned = 0, ban_reason = NULL, updated_at = CURRENT_TIMESTAMP WHERE id = ?'
+      )
       stmt.run(id)
       return { success: true }
     } catch (error) {
@@ -108,11 +116,13 @@ export function registerPlayerHandlers(database: Database.Database): void {
   // Ajouter à la whitelist
   ipcMain.handle('players:whitelist', (_, id: number) => {
     try {
-      const stmt = database.prepare('UPDATE players SET is_whitelisted = 1, updated_at = CURRENT_TIMESTAMP WHERE id = ?')
+      const stmt = database.prepare(
+        'UPDATE players SET is_whitelisted = 1, updated_at = CURRENT_TIMESTAMP WHERE id = ?'
+      )
       stmt.run(id)
       return { success: true }
     } catch (error) {
-      console.error('Erreur lors de l\'ajout à la whitelist:', error)
+      console.error("Erreur lors de l'ajout à la whitelist:", error)
       throw error
     }
   })
@@ -120,7 +130,9 @@ export function registerPlayerHandlers(database: Database.Database): void {
   // Retirer de la whitelist
   ipcMain.handle('players:unwhitelist', (_, id: number) => {
     try {
-      const stmt = database.prepare('UPDATE players SET is_whitelisted = 0, updated_at = CURRENT_TIMESTAMP WHERE id = ?')
+      const stmt = database.prepare(
+        'UPDATE players SET is_whitelisted = 0, updated_at = CURRENT_TIMESTAMP WHERE id = ?'
+      )
       stmt.run(id)
       return { success: true }
     } catch (error) {
@@ -129,4 +141,3 @@ export function registerPlayerHandlers(database: Database.Database): void {
     }
   })
 }
-

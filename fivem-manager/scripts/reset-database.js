@@ -6,7 +6,7 @@ function resetDatabase() {
   // Chemin vers la base de données (utiliser le même chemin que dans db.ts)
   const platform = process.platform
   let userDataPath
-  
+
   if (platform === 'win32') {
     userDataPath = path.join(process.env.APPDATA || os.homedir(), 'fivem-manager')
   } else if (platform === 'darwin') {
@@ -14,7 +14,7 @@ function resetDatabase() {
   } else {
     userDataPath = path.join(os.homedir(), '.config', 'fivem-manager')
   }
-  
+
   const dbPath = path.join(userDataPath, 'fivem-manager.db')
 
   console.log('Connexion à la base de données:', dbPath)
@@ -38,11 +38,11 @@ function resetDatabase() {
 
     // Supprimer toutes les données
     console.log('\nSuppression des données...')
-    
+
     // Supprimer les joueurs (cascade supprimera automatiquement les relations)
     db.prepare('DELETE FROM players').run()
     console.log('  ✓ Joueurs supprimés')
-    
+
     // Supprimer les serveurs
     db.prepare('DELETE FROM servers').run()
     console.log('  ✓ Serveurs supprimés')
@@ -57,7 +57,7 @@ function resetDatabase() {
     db.close()
   } catch (error) {
     if (error.code === 'SQLITE_CANTOPEN' || error.message.includes('no such file')) {
-      console.log('La base de données n\'existe pas encore. Rien à réinitialiser.')
+      console.log("La base de données n'existe pas encore. Rien à réinitialiser.")
     } else {
       console.error('Erreur lors de la réinitialisation:', error)
       process.exit(1)
@@ -71,4 +71,3 @@ if (require.main === module) {
 }
 
 module.exports = { resetDatabase }
-

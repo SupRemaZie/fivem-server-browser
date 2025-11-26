@@ -2,6 +2,8 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { fetchServerFromCFX } from './cfxApi'
 import type { CFXServerResponse } from '../types'
 import { get } from 'https'
+import type { IncomingMessage } from 'http'
+import type { ClientRequest } from 'http'
 
 // Mock du module https
 vi.mock('https', () => {
@@ -10,7 +12,7 @@ vi.mock('https', () => {
     destroy: vi.fn()
   }
   return {
-    get: vi.fn((url, options, callback) => {
+    get: vi.fn(() => {
       return mockRequest
     })
   }
@@ -66,20 +68,20 @@ describe('cfxApi', () => {
       }
 
       const mockRequest = {
-        on: vi.fn((event, handler) => {
-          if (event === 'error') {
-            // Ne pas appeler le handler d'erreur pour ce test
-          }
+        on: vi.fn(() => {
+          // Ne pas appeler le handler d'erreur pour ce test
         }),
         destroy: vi.fn()
       }
 
-      vi.mocked(get).mockImplementation((url, options, callback) => {
-        if (callback) {
-          callback(mockRes as any)
+      vi.mocked(get).mockImplementation(
+        (_url, _options, callback?: (res: IncomingMessage) => void) => {
+          if (callback) {
+            callback(mockRes as unknown as IncomingMessage)
+          }
+          return mockRequest as unknown as ClientRequest
         }
-        return mockRequest as any
-      })
+      )
 
       const result = await fetchServerFromCFX('abc123')
 
@@ -100,7 +102,7 @@ describe('cfxApi', () => {
       expect(result.players![0].name).toBe('Joueur 1')
     })
 
-    it('devrait rejeter avec une erreur si le code HTTP n\'est pas 200', async () => {
+    it("devrait rejeter avec une erreur si le code HTTP n'est pas 200", async () => {
       const mockRes = {
         statusCode: 404,
         statusMessage: 'Not Found',
@@ -112,12 +114,14 @@ describe('cfxApi', () => {
         destroy: vi.fn()
       }
 
-      vi.mocked(get).mockImplementation((url, options, callback) => {
-        if (callback) {
-          callback(mockRes as any)
+      vi.mocked(get).mockImplementation(
+        (_url, _options, callback?: (res: IncomingMessage) => void) => {
+          if (callback) {
+            callback(mockRes as unknown as IncomingMessage)
+          }
+          return mockRequest as unknown as ClientRequest
         }
-        return mockRequest as any
-      })
+      )
 
       await expect(fetchServerFromCFX('invalid')).rejects.toThrow('Erreur HTTP 404')
     })
@@ -143,12 +147,14 @@ describe('cfxApi', () => {
         destroy: vi.fn()
       }
 
-      vi.mocked(get).mockImplementation((url, options, callback) => {
-        if (callback) {
-          callback(mockRes as any)
+      vi.mocked(get).mockImplementation(
+        (_url, _options, callback?: (res: IncomingMessage) => void) => {
+          if (callback) {
+            callback(mockRes as unknown as IncomingMessage)
+          }
+          return mockRequest as unknown as ClientRequest
         }
-        return mockRequest as any
-      })
+      )
 
       await expect(fetchServerFromCFX('abc123')).rejects.toThrow(
         'Serveur non trouvé ou code CFX invalide'
@@ -164,7 +170,7 @@ describe('cfxApi', () => {
       }
 
       vi.mocked(get).mockImplementation(() => {
-        return mockRequest as any
+        return mockRequest as unknown as ClientRequest
       })
 
       const promise = fetchServerFromCFX('abc123')
@@ -178,4 +184,3 @@ describe('cfxApi', () => {
     })
   })
 })
-
