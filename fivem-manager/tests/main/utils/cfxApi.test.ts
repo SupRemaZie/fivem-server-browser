@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { fetchServerFromCFX } from './cfxApi'
-import type { CFXServerResponse } from '../types'
+import { fetchServerFromCFX } from '../../../src/main/utils/cfxApi'
+import type { CFXServerResponse } from '../../../src/main/types'
 import { get } from 'https'
 import type { IncomingMessage } from 'http'
 import type { ClientRequest } from 'http'
@@ -184,3 +184,4 @@ describe('cfxApi', () => {
     })
   })
 })
+
