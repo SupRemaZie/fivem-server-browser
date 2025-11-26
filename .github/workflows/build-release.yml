@@ -34,7 +34,7 @@ jobs:
 
       - name: Install dependencies
         working-directory: ./fivem-manager
-        run: npm ci
+        run: npm install --legacy-peer-deps
 
       - name: Build application (Linux)
         if: matrix.platform == 'linux'
