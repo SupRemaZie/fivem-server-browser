@@ -49,6 +49,7 @@ linux:
     - deb
   maintainer: SupRemaZie
   category: Utility
+  icon: build/icon.png
 snap:
   publish: null
 appImage:

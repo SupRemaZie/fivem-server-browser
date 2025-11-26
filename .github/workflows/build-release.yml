@@ -25,6 +25,12 @@ jobs:
         working-directory: ./fivem-manager
         run: npm install --legacy-peer-deps
 
+      - name: Prepare build resources
+        working-directory: ./fivem-manager
+        run: |
+          mkdir -p build
+          cp resources/icon.png build/icon.png || true
+
       - name: Install snapcraft
         run: |
           sudo snap install snapcraft --classic
