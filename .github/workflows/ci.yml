@@ -27,7 +27,7 @@ jobs:
 
       - name: Install dependencies
         working-directory: ./fivem-manager
-        run: npm ci
+        run: npm ci --omit=optional
 
       - name: Run linter
         working-directory: ./fivem-manager
