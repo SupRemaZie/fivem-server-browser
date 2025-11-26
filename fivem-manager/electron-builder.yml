@@ -49,6 +49,8 @@ linux:
     - deb
   maintainer: SupRemaZie
   category: Utility
+snap:
+  publish: null
 appImage:
   artifactName: ${name}-${version}.${ext}
 npmRebuild: false

@@ -39,7 +39,9 @@ jobs:
         env:
           CI: true
           CSC_IDENTITY_AUTO_DISCOVERY: false
-        run: npm run build:linux
+        run: |
+          npm run build
+          npx electron-builder --linux --publish never
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
