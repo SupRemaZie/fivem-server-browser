@@ -37,6 +37,7 @@ export default function ServerForm({
   const [cfxCode, setCfxCode] = useState('')
   const [isFetching, setIsFetching] = useState(false)
   const [fetchError, setFetchError] = useState<string | null>(null)
+  const [duplicateError, setDuplicateError] = useState<string | null>(null)
 
   useEffect(() => {
     if (server) {
@@ -80,6 +81,7 @@ export default function ServerForm({
     setResources([])
     setCfxCode('')
     setFetchError(null)
+    setDuplicateError(null)
 
     // Charger les ressources existantes si on édite un serveur
     if (server?.id) {
@@ -101,6 +103,7 @@ export default function ServerForm({
 
     setIsFetching(true)
     setFetchError(null)
+    setDuplicateError(null)
 
     try {
       const serverInfo = await window.api.servers.fetchFromCFX(cfxCode.trim())
@@ -132,8 +135,33 @@ export default function ServerForm({
     }
   }
 
+  // Désactiver les champs si le code CFX n'est pas renseigné (uniquement lors de l'ajout d'un nouveau serveur)
+  const isDisabled = !server && (!formData.cfx_code || formData.cfx_code.trim() === '')
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    setDuplicateError(null)
+
+    // Vérifier si le serveur existe déjà (uniquement lors de l'ajout d'un nouveau serveur)
+    if (!server) {
+      try {
+        const existsResult = await window.api.servers.exists(
+          formData.ip,
+          formData.port,
+          formData.cfx_code
+        )
+        if (existsResult.exists && existsResult.server) {
+          setDuplicateError(
+            `Un serveur avec le même ${formData.cfx_code ? 'code CFX' : 'IP/Port'} existe déjà : "${existsResult.server.name}"`
+          )
+          return
+        }
+      } catch (error) {
+        console.error('Erreur lors de la vérification de l\'existence du serveur:', error)
+        // Continuer même en cas d'erreur de vérification
+      }
+    }
+
     setIsSubmitting(true)
     try {
       // Inclure les joueurs et ressources dans les données du serveur
@@ -159,6 +187,7 @@ export default function ServerForm({
       setResources([])
       setCfxCode('')
       setFetchError(null)
+      setDuplicateError(null)
     } catch (error) {
       console.error('Erreur lors de la soumission:', error)
     } finally {
@@ -175,7 +204,7 @@ export default function ServerForm({
       {!server && (
         <div className="mb-4 p-4 bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded-md">
           <label htmlFor="cfxCode" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            🔍 Ajouter via code CFX (optionnel)
+            🔍 Ajouter via code CFX
           </label>
           <div className="flex gap-2">
             <input
@@ -220,7 +249,8 @@ export default function ServerForm({
             required
             value={formData.name}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 text-gray-900 dark:text-white bg-white dark:bg-gray-700 transition-colors"
+            disabled={isDisabled}
+            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 text-gray-900 dark:text-white bg-white dark:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           />
         </div>
         <div className="grid grid-cols-2 gap-4">
@@ -233,8 +263,12 @@ export default function ServerForm({
               id="ip"
               required
               value={formData.ip}
-              onChange={(e) => setFormData({ ...formData, ip: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 text-gray-900 dark:text-white bg-white dark:bg-gray-700 transition-colors"
+              onChange={(e) => {
+                setFormData({ ...formData, ip: e.target.value })
+                setDuplicateError(null)
+              }}
+              disabled={isDisabled}
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 text-gray-900 dark:text-white bg-white dark:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               placeholder="127.0.0.1"
             />
           </div>
@@ -249,8 +283,12 @@ export default function ServerForm({
               min="1"
               max="65535"
               value={formData.port}
-              onChange={(e) => setFormData({ ...formData, port: parseInt(e.target.value) || 3000 })}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 text-gray-900 dark:text-white bg-white dark:bg-gray-700 transition-colors"
+              onChange={(e) => {
+                setFormData({ ...formData, port: parseInt(e.target.value) || 3000 })
+                setDuplicateError(null)
+              }}
+              disabled={isDisabled}
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 text-gray-900 dark:text-white bg-white dark:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             />
           </div>
         </div>
@@ -262,10 +300,16 @@ export default function ServerForm({
             id="description"
             value={formData.description}
             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+            disabled={isDisabled}
             rows={3}
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 text-gray-900 dark:text-white bg-white dark:bg-gray-700 transition-colors"
+            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 text-gray-900 dark:text-white bg-white dark:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           />
         </div>
+        {duplicateError && (
+          <div className="p-3 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-md">
+            <p className="text-sm text-red-600 dark:text-red-400">{duplicateError}</p>
+          </div>
+        )}
         <div className="flex justify-end space-x-3">
           <button
             type="button"
@@ -276,8 +320,8 @@ export default function ServerForm({
           </button>
           <button
             type="submit"
-            disabled={isSubmitting}
-            className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 dark:bg-indigo-700 rounded-md hover:bg-indigo-700 dark:hover:bg-indigo-600 disabled:opacity-50 transition-colors"
+            disabled={isSubmitting || isDisabled}
+            className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 dark:bg-indigo-700 rounded-md hover:bg-indigo-700 dark:hover:bg-indigo-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             {isSubmitting ? 'Enregistrement...' : server ? 'Modifier' : 'Ajouter'}
           </button>

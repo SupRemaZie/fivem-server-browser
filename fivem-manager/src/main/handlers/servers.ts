@@ -35,6 +35,32 @@ export function registerServerHandlers(database: Database.Database): void {
     }
   })
 
+  // Vérifier si un serveur existe déjà (par IP/port ou par code CFX)
+  ipcMain.handle('servers:exists', (_, ip: string, port: number, cfxCode?: string | null) => {
+    try {
+      // Vérifier par code CFX si fourni
+      if (cfxCode && cfxCode.trim()) {
+        const cfxStmt = database.prepare('SELECT id, name FROM servers WHERE cfx_code = ?')
+        const cfxResult = cfxStmt.get(cfxCode.trim()) as { id: number; name: string } | undefined
+        if (cfxResult) {
+          return { exists: true, server: cfxResult }
+        }
+      }
+
+      // Vérifier par IP et port
+      const ipPortStmt = database.prepare('SELECT id, name FROM servers WHERE ip = ? AND port = ?')
+      const ipPortResult = ipPortStmt.get(ip, port) as { id: number; name: string } | undefined
+      if (ipPortResult) {
+        return { exists: true, server: ipPortResult }
+      }
+
+      return { exists: false }
+    } catch (error) {
+      console.error('Erreur lors de la vérification de l\'existence du serveur:', error)
+      throw error
+    }
+  })
+
   // Créer un serveur
   ipcMain.handle('servers:create', (_, server: ServerInput) => {
     try {

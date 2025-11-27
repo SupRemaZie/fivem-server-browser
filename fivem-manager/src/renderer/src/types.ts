@@ -116,6 +116,11 @@ export interface API {
   servers: {
     getAll: () => Promise<Server[]>
     getById: (id: number) => Promise<Server>
+    exists: (
+      ip: string,
+      port: number,
+      cfxCode?: string | null
+    ) => Promise<{ exists: boolean; server?: { id: number; name: string } }>
     create: (server: Omit<Server, 'id' | 'created_at' | 'updated_at'>) => Promise<Server>
     update: (
       id: number,

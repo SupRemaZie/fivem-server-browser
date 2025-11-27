@@ -32,6 +32,12 @@ const api = {
   servers: {
     getAll: (): Promise<Server[]> => ipcRenderer.invoke('servers:getAll'),
     getById: (id: number): Promise<Server> => ipcRenderer.invoke('servers:getById', id),
+    exists: (
+      ip: string,
+      port: number,
+      cfxCode?: string | null
+    ): Promise<{ exists: boolean; server?: { id: number; name: string } }> =>
+      ipcRenderer.invoke('servers:exists', ip, port, cfxCode),
     create: (
       server: Omit<Server, 'id' | 'created_at' | 'updated_at' | 'is_online'>
     ): Promise<Server> => ipcRenderer.invoke('servers:create', server),

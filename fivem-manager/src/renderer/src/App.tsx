@@ -226,7 +226,7 @@ function AppContent(): React.JSX.Element {
 
   return (
     <div className="h-screen bg-gray-100 dark:bg-gray-900 flex flex-col overflow-hidden transition-colors">
-      <div className="flex-1 flex flex-col overflow-hidden px-4 sm:px-6 lg:px-8 py-4">
+      <div className="flex-1 flex flex-col overflow-y-auto px-4 sm:px-6 lg:px-8 py-4">
         <div className="mb-4 flex-shrink-0">
           <div className="flex justify-between items-start">
             <div>
@@ -257,11 +257,11 @@ function AppContent(): React.JSX.Element {
           </div>
         </div>
 
-        <div className="flex-1 flex flex-col gap-4 min-h-0">
+        <div className="flex-1 flex flex-col gap-4 min-h-0 overflow-y-auto">
           {/* Section Serveurs */}
           <div className="flex-1 flex flex-col min-h-0">
             <div className="flex justify-between items-center mb-4 flex-shrink-0 gap-2">
-              <div className="flex gap-2 flex-wrap">
+              <div className="flex gap-2 flex-wrap ml-auto">
                 {hasPermission('servers.view') && (
                   <button
                     onClick={refreshAllServers}
