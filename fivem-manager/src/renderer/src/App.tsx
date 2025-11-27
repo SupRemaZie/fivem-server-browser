@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react'
 import { AuthProvider, useAuth } from './context/AuthContext'
+import { ThemeProvider, useTheme } from './context/ThemeContext'
 import Login from './components/Login'
 import ServerList from './components/ServerList'
 import ServerForm from './components/ServerForm'
 import ServerManagement from './components/ServerManagement'
 import { Server } from './types'
+import Icon from '../../../build/icon.png'
 
 function AppContent(): React.JSX.Element {
   const { isAuthenticated, user, logout, hasPermission, isLoading: authLoading } = useAuth()
@@ -53,10 +55,10 @@ function AppContent(): React.JSX.Element {
   // Attendre que l'authentification soit chargée
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-100 dark:bg-gray-900 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Chargement...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 dark:border-indigo-400 mx-auto"></div>
+          <p className="mt-4 text-gray-600 dark:text-gray-400">Chargement...</p>
         </div>
       </div>
     )
@@ -213,36 +215,40 @@ function AppContent(): React.JSX.Element {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-100 dark:bg-gray-900 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Chargement...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 dark:border-indigo-400 mx-auto"></div>
+          <p className="mt-4 text-gray-600 dark:text-gray-400">Chargement...</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="h-screen bg-gray-100 flex flex-col overflow-hidden">
+    <div className="h-screen bg-gray-100 dark:bg-gray-900 flex flex-col overflow-hidden transition-colors">
       <div className="flex-1 flex flex-col overflow-hidden px-4 sm:px-6 lg:px-8 py-4">
         <div className="mb-4 flex-shrink-0">
           <div className="flex justify-between items-start">
             <div>
-              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
-                🚀 FiveM Server Manager
-              </h1>
-              <p className="mt-1 text-sm sm:text-base text-gray-600">
+              <div className="flex items-center gap-2">
+                <img src={Icon} alt="Logo" className="w-20 h-20" />
+                <h1>
+                  Fivage
+                </h1>
+              </div>
+              <p className="mt-1 text-sm sm:text-base text-gray-600 dark:text-gray-400">
                 Gérez vos serveurs FiveM et leurs joueurs
               </p>
             </div>
             <div className="flex items-center gap-3">
+          
               <div className="text-right">
-                <p className="text-sm font-medium text-gray-900">{user?.username}</p>
-                <p className="text-xs text-gray-500 capitalize">{user?.role}</p>
+                <p className="text-sm font-medium text-gray-900 dark:text-white">{user?.username}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 capitalize">{user?.role}</p>
               </div>
               <button
                 onClick={logout}
-                className="px-3 py-2 text-sm bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors"
+                className="px-3 py-2 text-sm bg-gray-600 dark:bg-gray-700 text-white rounded-md hover:bg-gray-700 dark:hover:bg-gray-600 transition-colors"
                 title="Déconnexion"
               >
                 Déconnexion
@@ -255,7 +261,6 @@ function AppContent(): React.JSX.Element {
           {/* Section Serveurs */}
           <div className="flex-1 flex flex-col min-h-0">
             <div className="flex justify-between items-center mb-4 flex-shrink-0 gap-2">
-              <h2 className="text-xl sm:text-2xl font-semibold text-gray-800">Serveurs</h2>
               <div className="flex gap-2 flex-wrap">
                 {hasPermission('servers.view') && (
                   <button
@@ -265,15 +270,6 @@ function AppContent(): React.JSX.Element {
                     disabled={loading}
                   >
                     🔄 Rafraîchir
-                  </button>
-                )}
-                {hasPermission('database.reset') && (
-                  <button
-                    onClick={handleResetDatabase}
-                    className="px-3 sm:px-4 py-2 text-sm sm:text-base bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
-                    title="Réinitialiser la base de données"
-                  >
-                    🗑️ Reset DB
                   </button>
                 )}
                 {hasPermission('servers.create') && (
@@ -318,9 +314,11 @@ function AppContent(): React.JSX.Element {
 
 function App(): React.JSX.Element {
   return (
-    <AuthProvider>
-      <AppContent />
-    </AuthProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <AppContent />
+      </AuthProvider>
+    </ThemeProvider>
   )
 }
 

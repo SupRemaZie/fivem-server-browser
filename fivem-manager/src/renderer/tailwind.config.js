@@ -7,6 +7,7 @@ const rendererDir = __dirname.replace(/\\/g, '/') // Normaliser les séparateurs
 
 module.exports = {
   content: [`${rendererDir}/index.html`, `${rendererDir}/src/**/*.{js,ts,jsx,tsx}`],
+  darkMode: 'class',
   theme: {
     extend: {}
   },

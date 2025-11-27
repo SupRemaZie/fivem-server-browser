@@ -167,14 +167,14 @@ export default function ServerForm({
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-6">
-      <h3 className="text-lg font-semibold mb-4 text-gray-900">
+    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 transition-colors">
+      <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
         {server ? 'Modifier le serveur' : 'Ajouter un serveur'}
       </h3>
 
       {!server && (
-        <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-md">
-          <label htmlFor="cfxCode" className="block text-sm font-medium text-gray-700 mb-2">
+        <div className="mb-4 p-4 bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded-md">
+          <label htmlFor="cfxCode" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             🔍 Ajouter via code CFX (optionnel)
           </label>
           <div className="flex gap-2">
@@ -184,7 +184,7 @@ export default function ServerForm({
               value={cfxCode}
               onChange={(e) => setCfxCode(e.target.value)}
               placeholder="Ex: dl5zpy"
-              className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900 bg-white"
+              className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 text-gray-900 dark:text-white bg-white dark:bg-gray-700 transition-colors"
               onKeyPress={(e) => {
                 if (e.key === 'Enter') {
                   e.preventDefault()
@@ -196,13 +196,13 @@ export default function ServerForm({
               type="button"
               onClick={handleFetchFromCFX}
               disabled={isFetching || !cfxCode.trim()}
-              className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-4 py-2 text-sm font-medium text-white bg-blue-600 dark:bg-blue-700 rounded-md hover:bg-blue-700 dark:hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               {isFetching ? 'Chargement...' : 'Récupérer'}
             </button>
           </div>
-          {fetchError && <p className="mt-2 text-sm text-red-600">{fetchError}</p>}
-          <p className="mt-2 text-xs text-gray-500">
+          {fetchError && <p className="mt-2 text-sm text-red-600 dark:text-red-400">{fetchError}</p>}
+          <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
             Entrez le code CFX du serveur (visible dans l'URL FiveM) pour récupérer automatiquement
             les informations
           </p>
@@ -211,7 +211,7 @@ export default function ServerForm({
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             Nom *
           </label>
           <input
@@ -220,12 +220,12 @@ export default function ServerForm({
             required
             value={formData.name}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900 bg-white"
+            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 text-gray-900 dark:text-white bg-white dark:bg-gray-700 transition-colors"
           />
         </div>
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label htmlFor="ip" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="ip" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               IP *
             </label>
             <input
@@ -234,12 +234,12 @@ export default function ServerForm({
               required
               value={formData.ip}
               onChange={(e) => setFormData({ ...formData, ip: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900 bg-white"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 text-gray-900 dark:text-white bg-white dark:bg-gray-700 transition-colors"
               placeholder="127.0.0.1"
             />
           </div>
           <div>
-            <label htmlFor="port" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="port" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Port *
             </label>
             <input
@@ -250,12 +250,12 @@ export default function ServerForm({
               max="65535"
               value={formData.port}
               onChange={(e) => setFormData({ ...formData, port: parseInt(e.target.value) || 3000 })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900 bg-white"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 text-gray-900 dark:text-white bg-white dark:bg-gray-700 transition-colors"
             />
           </div>
         </div>
         <div>
-          <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="description" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             Description
           </label>
           <textarea
@@ -263,21 +263,21 @@ export default function ServerForm({
             value={formData.description}
             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
             rows={3}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900 bg-white"
+            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 text-gray-900 dark:text-white bg-white dark:bg-gray-700 transition-colors"
           />
         </div>
         <div className="flex justify-end space-x-3">
           <button
             type="button"
             onClick={onCancel}
-            className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200"
+            className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
           >
             Annuler
           </button>
           <button
             type="submit"
             disabled={isSubmitting}
-            className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 disabled:opacity-50"
+            className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 dark:bg-indigo-700 rounded-md hover:bg-indigo-700 dark:hover:bg-indigo-600 disabled:opacity-50 transition-colors"
           >
             {isSubmitting ? 'Enregistrement...' : server ? 'Modifier' : 'Ajouter'}
           </button>

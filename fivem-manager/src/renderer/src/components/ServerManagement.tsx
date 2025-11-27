@@ -297,10 +297,10 @@ export default function ServerManagement({
 
   const getRoleColor = (role: UserRole): string => {
     const colors: Record<UserRole, string> = {
-      admin: 'bg-red-100 text-red-800',
-      moderator: 'bg-orange-100 text-orange-800',
-      support: 'bg-blue-100 text-blue-800',
-      viewer: 'bg-gray-100 text-gray-800'
+      admin: 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-400',
+      moderator: 'bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-400',
+      support: 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-400',
+      viewer: 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300'
     }
     return colors[role]
   }
@@ -368,19 +368,19 @@ export default function ServerManagement({
   }, [tabs, activeTab])
 
   return (
-    <div className="h-screen bg-gray-100 flex flex-col overflow-hidden">
+    <div className="h-screen bg-gray-100 dark:bg-gray-900 flex flex-col overflow-hidden transition-colors">
       {/* Header */}
-      <div className="bg-indigo-600 text-white px-4 sm:px-6 py-4 flex-shrink-0">
+      <div className="bg-indigo-600 dark:bg-indigo-800 text-white px-4 sm:px-6 py-4 flex-shrink-0">
         <div className="flex items-center justify-between">
           <div>
             <button
               onClick={onBack}
-              className="text-white hover:text-gray-200 mr-4 text-sm sm:text-base"
+              className="text-white hover:text-gray-200 dark:hover:text-gray-300 mr-4 text-sm sm:text-base transition-colors"
             >
               ← Retour
             </button>
             <h1 className="text-xl sm:text-2xl font-bold inline">{server.name}</h1>
-            <p className="text-indigo-100 text-sm mt-1">
+            <p className="text-indigo-100 dark:text-indigo-200 text-sm mt-1">
               {server.ip}:{server.port}
             </p>
           </div>
@@ -399,7 +399,7 @@ export default function ServerManagement({
       </div>
 
       {/* Tabs */}
-      <div className="bg-white border-b border-gray-200 flex-shrink-0">
+      <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 flex-shrink-0 transition-colors">
         <div className="flex overflow-x-auto">
           {tabs.map((tab) => (
             <button
@@ -407,8 +407,8 @@ export default function ServerManagement({
               onClick={() => setActiveTab(tab.id)}
               className={`px-4 sm:px-6 py-3 text-sm sm:text-base font-medium whitespace-nowrap border-b-2 transition-colors ${
                 activeTab === tab.id
-                  ? 'border-indigo-600 text-indigo-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  ? 'border-indigo-600 dark:border-indigo-400 text-indigo-600 dark:text-indigo-400'
+                  : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600'
               }`}
             >
               {tab.label}
@@ -421,43 +421,43 @@ export default function ServerManagement({
       <div className="flex-1 overflow-auto p-4 sm:p-6">
         {loading ? (
           <div className="text-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
-            <p className="mt-4 text-gray-600">Chargement...</p>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 dark:border-indigo-400 mx-auto"></div>
+            <p className="mt-4 text-gray-600 dark:text-gray-400">Chargement...</p>
           </div>
         ) : (
           <>
             {/* Tab: Logs */}
             {activeTab === 'logs' && (
-              <div className="bg-white rounded-lg shadow-md overflow-hidden">
-                <div className="px-4 sm:px-6 py-4 bg-gray-50 border-b border-gray-200">
-                  <h2 className="text-lg font-semibold text-gray-900">Logs du serveur</h2>
+              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden transition-colors">
+                <div className="px-4 sm:px-6 py-4 bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
+                  <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Logs du serveur</h2>
                 </div>
                 <div className="overflow-auto max-h-[calc(100vh-300px)]">
-                  <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50 sticky top-0">
+                  <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                    <thead className="bg-gray-50 dark:bg-gray-900 sticky top-0">
                       <tr>
-                        <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                           Timestamp
                         </th>
-                        <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                           Message
                         </th>
                       </tr>
                     </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
+                    <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                       {logs.length === 0 ? (
                         <tr>
-                          <td colSpan={2} className="px-4 sm:px-6 py-8 text-center text-gray-500">
+                          <td colSpan={2} className="px-4 sm:px-6 py-8 text-center text-gray-500 dark:text-gray-400">
                             Aucun log disponible
                           </td>
                         </tr>
                       ) : (
                         logs.map((log) => (
-                          <tr key={log.id} className="hover:bg-gray-50">
-                            <td className="px-4 sm:px-6 py-3 whitespace-nowrap text-sm text-gray-500">
+                          <tr key={log.id} className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                            <td className="px-4 sm:px-6 py-3 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                               {new Date(log.timestamp).toLocaleString('fr-FR')}
                             </td>
-                            <td className="px-4 sm:px-6 py-3 text-sm text-gray-900 font-mono">
+                            <td className="px-4 sm:px-6 py-3 text-sm text-gray-900 dark:text-gray-100 font-mono">
                               {log.message}
                             </td>
                           </tr>
@@ -471,53 +471,53 @@ export default function ServerManagement({
 
             {/* Tab: Players */}
             {activeTab === 'players' && (
-              <div className="bg-white rounded-lg shadow-md overflow-hidden">
-                <div className="px-4 sm:px-6 py-4 bg-gray-50 border-b border-gray-200 flex justify-between items-center">
-                  <h2 className="text-lg font-semibold text-gray-900">
+              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden transition-colors">
+                <div className="px-4 sm:px-6 py-4 bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+                  <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
                     Joueurs ({players.length})
                   </h2>
                 </div>
                 <div className="overflow-auto max-h-[calc(100vh-300px)]">
-                  <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50 sticky top-0">
+                  <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                    <thead className="bg-gray-50 dark:bg-gray-900 sticky top-0">
                       <tr>
-                        <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                           Nom
                         </th>
-                        <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                           Statut
                         </th>
-                        <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                           Actions
                         </th>
                       </tr>
                     </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
+                    <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                       {players.length === 0 ? (
                         <tr>
-                          <td colSpan={3} className="px-4 sm:px-6 py-8 text-center text-gray-500">
+                          <td colSpan={3} className="px-4 sm:px-6 py-8 text-center text-gray-500 dark:text-gray-400">
                             Aucun joueur enregistré
                           </td>
                         </tr>
                       ) : (
                         players.map((player) => (
-                          <tr key={player.id} className="hover:bg-gray-50">
-                            <td className="px-4 sm:px-6 py-3 text-sm font-medium text-gray-900">
+                          <tr key={player.id} className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                            <td className="px-4 sm:px-6 py-3 text-sm font-medium text-gray-900 dark:text-gray-100">
                               {player.name}
                             </td>
                             <td className="px-4 sm:px-6 py-3 text-sm">
                               <div className="flex flex-wrap gap-2">
                                 {isBanned(player) ? (
-                                  <span className="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">
+                                  <span className="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-400">
                                     Banni
                                   </span>
                                 ) : (
-                                  <span className="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                                  <span className="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400">
                                     Actif
                                   </span>
                                 )}
                                 {isWhitelisted(player) && (
-                                  <span className="px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+                                  <span className="px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-400">
                                     Whitelist
                                   </span>
                                 )}
@@ -555,26 +555,26 @@ export default function ServerManagement({
 
             {/* Tab: Resources */}
             {activeTab === 'resources' && (
-              <div className="bg-white rounded-lg shadow-md overflow-hidden">
-                <div className="px-4 sm:px-6 py-4 bg-gray-50 border-b border-gray-200">
-                  <h2 className="text-lg font-semibold text-gray-900">
+              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden transition-colors">
+                <div className="px-4 sm:px-6 py-4 bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
+                  <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
                     Ressources du serveur ({resources.length})
                   </h2>
                 </div>
                 <div className="overflow-auto max-h-[calc(100vh-300px)]">
                   <div className="p-4 sm:p-6">
                     {resources.length === 0 ? (
-                      <p className="text-center text-gray-500 py-8">Aucune ressource disponible</p>
+                      <p className="text-center text-gray-500 dark:text-gray-400 py-8">Aucune ressource disponible</p>
                     ) : (
                       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                         {resources.map((resource, index) => (
                           <div
                             key={index}
-                            className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+                            className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                           >
                             <div className="flex items-center justify-between">
-                              <span className="text-sm font-medium text-gray-900">{resource}</span>
-                              <span className="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                              <span className="text-sm font-medium text-gray-900 dark:text-gray-100">{resource}</span>
+                              <span className="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400">
                                 Actif
                               </span>
                             </div>
@@ -589,37 +589,37 @@ export default function ServerManagement({
 
             {/* Tab: Bans */}
             {activeTab === 'bans' && (
-              <div className="bg-white rounded-lg shadow-md overflow-hidden">
-                <div className="px-4 sm:px-6 py-4 bg-gray-50 border-b border-gray-200">
-                  <h2 className="text-lg font-semibold text-gray-900">
+              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden transition-colors">
+                <div className="px-4 sm:px-6 py-4 bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
+                  <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
                     Joueurs bannis ({bannedPlayers.length})
                   </h2>
                 </div>
                 <div className="overflow-auto max-h-[calc(100vh-300px)]">
-                  <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50 sticky top-0">
+                  <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                    <thead className="bg-gray-50 dark:bg-gray-900 sticky top-0">
                       <tr>
-                        <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                           Nom
                         </th>
-                        <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                           Motif du ban
                         </th>
-                        <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                           Banni par
                         </th>
-                        <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                           Date de ban
                         </th>
-                        <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                           Actions
                         </th>
                       </tr>
                     </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
+                    <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                       {bannedPlayers.length === 0 ? (
                         <tr>
-                          <td colSpan={5} className="px-4 sm:px-6 py-8 text-center text-gray-500">
+                          <td colSpan={5} className="px-4 sm:px-6 py-8 text-center text-gray-500 dark:text-gray-400">
                             Aucun joueur banni
                           </td>
                         </tr>
@@ -629,23 +629,23 @@ export default function ServerManagement({
                             ? allUsers.find((u) => u.id === player.banned_by_user_id)
                             : null
                           return (
-                            <tr key={player.id} className="hover:bg-gray-50">
-                              <td className="px-4 sm:px-6 py-3 text-sm font-medium text-gray-900">
+                            <tr key={player.id} className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                              <td className="px-4 sm:px-6 py-3 text-sm font-medium text-gray-900 dark:text-gray-100">
                                 {player.name}
                               </td>
-                              <td className="px-4 sm:px-6 py-3 text-sm text-gray-700">
+                              <td className="px-4 sm:px-6 py-3 text-sm text-gray-700 dark:text-gray-300">
                                 {player.ban_reason || (
-                                  <span className="text-gray-400 italic">Aucun motif renseigné</span>
+                                  <span className="text-gray-400 dark:text-gray-500 italic">Aucun motif renseigné</span>
                                 )}
                               </td>
-                              <td className="px-4 sm:px-6 py-3 text-sm text-gray-600">
+                              <td className="px-4 sm:px-6 py-3 text-sm text-gray-600 dark:text-gray-400">
                                 {bannedByUser ? (
                                   <span className="font-medium">{bannedByUser.username}</span>
                                 ) : (
-                                  <span className="text-gray-400 italic">Inconnu</span>
+                                  <span className="text-gray-400 dark:text-gray-500 italic">Inconnu</span>
                                 )}
                               </td>
-                              <td className="px-4 sm:px-6 py-3 text-sm text-gray-500">
+                              <td className="px-4 sm:px-6 py-3 text-sm text-gray-500 dark:text-gray-400">
                                 {player.updated_at
                                   ? new Date(player.updated_at).toLocaleDateString('fr-FR')
                                   : '-'}
@@ -672,9 +672,9 @@ export default function ServerManagement({
 
             {/* Tab: Staff */}
             {activeTab === 'staff' && (
-              <div className="bg-white rounded-lg shadow-md overflow-hidden">
-                <div className="px-4 sm:px-6 py-4 bg-gray-50 border-b border-gray-200 flex justify-between items-center">
-                  <h2 className="text-lg font-semibold text-gray-900">
+              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden transition-colors">
+                <div className="px-4 sm:px-6 py-4 bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+                  <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
                     Membres du staff ({getServerStaff().length} / {allUsers.length})
                   </h2>
                   {currentUser?.role === 'admin' && (
@@ -691,40 +691,40 @@ export default function ServerManagement({
                         setShowUserModal(true)
                         setError('')
                       }}
-                      className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700"
+                      className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 dark:bg-indigo-700 rounded-md hover:bg-indigo-700 dark:hover:bg-indigo-600 transition-colors"
                     >
                       + Créer un utilisateur
                     </button>
                   )}
                 </div>
                 <div className="overflow-auto max-h-[calc(100vh-300px)]">
-                  <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50 sticky top-0">
+                  <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                    <thead className="bg-gray-50 dark:bg-gray-900 sticky top-0">
                       <tr>
-                        <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                           Assigné
                         </th>
-                        <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                           Nom d'utilisateur
                         </th>
-                        <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                           Email
                         </th>
-                        <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                           Rôle
                         </th>
-                        <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                           Permissions
                         </th>
-                        <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                           Actions
                         </th>
                       </tr>
                     </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
+                    <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                       {allUsers.length === 0 ? (
                         <tr>
-                          <td colSpan={6} className="px-4 sm:px-6 py-8 text-center text-gray-500">
+                          <td colSpan={6} className="px-4 sm:px-6 py-8 text-center text-gray-500 dark:text-gray-400">
                             Aucun utilisateur
                           </td>
                         </tr>
@@ -739,7 +739,7 @@ export default function ServerManagement({
                           return (
                             <tr
                               key={user.id}
-                              className={`hover:bg-gray-50 ${isAssigned ? 'bg-green-50' : ''}`}
+                              className={`hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors ${isAssigned ? 'bg-green-50 dark:bg-green-900/20' : ''}`}
                             >
                               <td className="px-4 sm:px-6 py-3 text-sm">
                                 {hasPermission('staff.manage') ? (
@@ -747,25 +747,25 @@ export default function ServerManagement({
                                     type="checkbox"
                                     checked={isAssigned || false}
                                     onChange={() => user.id && toggleStaffAssignment(user.id)}
-                                    className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                                    className="rounded border-gray-300 dark:border-gray-600 text-indigo-600 dark:text-indigo-400 focus:ring-indigo-500 dark:focus:ring-indigo-400"
                                   />
                                 ) : (
                                   <span
                                     className={
-                                      isAssigned ? 'text-green-600 font-semibold' : 'text-gray-400'
+                                      isAssigned ? 'text-green-600 dark:text-green-400 font-semibold' : 'text-gray-400 dark:text-gray-500'
                                     }
                                   >
                                     {isAssigned ? '✓' : '○'}
                                   </span>
                                 )}
                               </td>
-                              <td className="px-4 sm:px-6 py-3 text-sm font-medium text-gray-900">
+                              <td className="px-4 sm:px-6 py-3 text-sm font-medium text-gray-900 dark:text-gray-100">
                                 {user.username}
                                 {currentUser?.id === user.id && (
-                                  <span className="ml-2 text-xs text-gray-500">(Vous)</span>
+                                  <span className="ml-2 text-xs text-gray-500 dark:text-gray-400">(Vous)</span>
                                 )}
                               </td>
-                              <td className="px-4 sm:px-6 py-3 text-sm text-gray-500">
+                              <td className="px-4 sm:px-6 py-3 text-sm text-gray-500 dark:text-gray-400">
                                 {user.email || '-'}
                               </td>
                               <td className="px-4 sm:px-6 py-3 text-sm">
@@ -780,14 +780,14 @@ export default function ServerManagement({
                                   {userPermissions.slice(0, 3).map((permission) => (
                                     <span
                                       key={permission}
-                                      className="px-2 py-1 text-xs rounded bg-indigo-100 text-indigo-800"
+                                      className="px-2 py-1 text-xs rounded bg-indigo-100 dark:bg-indigo-900/30 text-indigo-800 dark:text-indigo-300"
                                       title={permissionLabels[permission]}
                                     >
                                       {permissionLabels[permission].split(' ')[0]}
                                     </span>
                                   ))}
                                   {userPermissions.length > 3 && (
-                                    <span className="px-2 py-1 text-xs text-gray-500">
+                                    <span className="px-2 py-1 text-xs text-gray-500 dark:text-gray-400">
                                       +{userPermissions.length - 3}
                                     </span>
                                   )}
@@ -828,13 +828,13 @@ export default function ServerManagement({
 
       {/* Modal pour le motif de ban */}
       {showBanModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
-            <div className="px-6 py-4 border-b border-gray-200">
-              <h3 className="text-lg font-semibold text-gray-900">Bannir un joueur</h3>
+        <div className="fixed inset-0 bg-black bg-opacity-50 dark:bg-opacity-70 flex items-center justify-center z-50">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full mx-4 transition-colors">
+            <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Bannir un joueur</h3>
             </div>
             <div className="px-6 py-4">
-              <label htmlFor="banReason" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="banReason" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Motif du ban *
               </label>
               <textarea
@@ -843,24 +843,24 @@ export default function ServerManagement({
                 onChange={(e) => setBanReason(e.target.value)}
                 placeholder="Entrez le motif du ban..."
                 rows={4}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900 bg-white"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 text-gray-900 dark:text-white bg-white dark:bg-gray-700 transition-colors"
                 autoFocus
               />
-              <p className="mt-2 text-xs text-gray-500">
+              <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
                 Le motif est obligatoire et sera affiché dans l'onglet Bans.
               </p>
             </div>
-            <div className="px-6 py-4 border-t border-gray-200 flex justify-end gap-3">
+            <div className="px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex justify-end gap-3">
               <button
                 onClick={handleBanCancel}
-                className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200"
+                className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
               >
                 Annuler
               </button>
               <button
                 onClick={handleBanConfirm}
                 disabled={banReason.trim() === ''}
-                className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-4 py-2 text-sm font-medium text-white bg-red-600 dark:bg-red-700 rounded-md hover:bg-red-700 dark:hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 Bannir
               </button>
@@ -871,22 +871,22 @@ export default function ServerManagement({
 
       {/* Modal pour créer/modifier un utilisateur */}
       {showUserModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-xl max-w-3xl w-full mx-4 max-h-[90vh] overflow-y-auto">
-            <div className="px-6 py-4 border-b border-gray-200">
-              <h3 className="text-lg font-semibold text-gray-900">
+        <div className="fixed inset-0 bg-black bg-opacity-50 dark:bg-opacity-70 flex items-center justify-center z-50">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-3xl w-full mx-4 max-h-[90vh] overflow-y-auto transition-colors">
+            <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                 {editingUser ? 'Modifier un utilisateur' : 'Créer un utilisateur'}
               </h3>
             </div>
             <form onSubmit={handleUserSubmit} className="px-6 py-4 space-y-4">
               {error && (
-                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md text-sm">
+                <div className="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 px-4 py-3 rounded-md text-sm">
                   {error}
                 </div>
               )}
 
               <div>
-                <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="username" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Nom d'utilisateur *
                 </label>
                 <input
@@ -895,13 +895,13 @@ export default function ServerManagement({
                   value={userForm.username}
                   onChange={(e) => setUserForm((prev) => ({ ...prev, username: e.target.value }))}
                   required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900 bg-white"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 text-gray-900 dark:text-white bg-white dark:bg-gray-700 transition-colors"
                   autoFocus
                 />
               </div>
 
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Email
                 </label>
                 <input
@@ -909,12 +909,12 @@ export default function ServerManagement({
                   type="email"
                   value={userForm.email}
                   onChange={(e) => setUserForm((prev) => ({ ...prev, email: e.target.value }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900 bg-white"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 text-gray-900 dark:text-white bg-white dark:bg-gray-700 transition-colors"
                 />
               </div>
 
               <div>
-                <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Mot de passe {editingUser ? '(laisser vide pour ne pas changer)' : '*'}
                 </label>
                 <input
@@ -923,67 +923,67 @@ export default function ServerManagement({
                   value={userForm.password}
                   onChange={(e) => setUserForm((prev) => ({ ...prev, password: e.target.value }))}
                   required={!editingUser}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900 bg-white"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 text-gray-900 dark:text-white bg-white dark:bg-gray-700 transition-colors"
                 />
               </div>
 
               <div>
-                <label htmlFor="role" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="role" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Rôle *
                 </label>
                 <select
                   id="role"
                   value={userForm.role}
                   onChange={(e) => handleRoleChange(e.target.value as UserRole)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900 bg-white"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 text-gray-900 dark:text-white bg-white dark:bg-gray-700 transition-colors"
                 >
                   <option value="viewer">Viewer</option>
                   <option value="support">Support</option>
                   <option value="moderator">Modérateur</option>
                   <option value="admin">Administrateur</option>
                 </select>
-                <p className="mt-1 text-xs text-gray-500">
+                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
                   Les permissions par défaut du rôle seront appliquées, mais vous pouvez les
                   personnaliser ci-dessous.
                 </p>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-3">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
                   Permissions personnalisées
                 </label>
-                <div className="space-y-2 max-h-64 overflow-y-auto border border-gray-200 rounded-md p-3">
+                <div className="space-y-2 max-h-64 overflow-y-auto border border-gray-200 dark:border-gray-700 rounded-md p-3 bg-gray-50 dark:bg-gray-900/50">
                   {allPermissions.map((permission) => (
                     <label key={permission} className="flex items-center">
                       <input
                         type="checkbox"
                         checked={userForm.permissions.includes(permission)}
                         onChange={() => handlePermissionToggle(permission)}
-                        className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                        className="rounded border-gray-300 dark:border-gray-600 text-indigo-600 dark:text-indigo-400 focus:ring-indigo-500 dark:focus:ring-indigo-400"
                       />
-                      <span className="ml-2 text-sm text-gray-700">
+                      <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">
                         {permissionLabels[permission]}
                       </span>
                     </label>
                   ))}
                 </div>
-                <p className="mt-2 text-xs text-gray-500">
+                <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
                   {userForm.permissions.length} permission(s) sélectionnée(s). Si aucune permission
                   n'est sélectionnée, les permissions par défaut du rôle seront utilisées.
                 </p>
               </div>
 
-              <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">
+              <div className="flex justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
                 <button
                   type="button"
                   onClick={handleUserCancel}
-                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200"
+                  className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
                 >
                   Annuler
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700"
+                  className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 dark:bg-indigo-700 rounded-md hover:bg-indigo-700 dark:hover:bg-indigo-600 transition-colors"
                 >
                   {editingUser ? 'Modifier' : 'Créer'}
                 </button>
