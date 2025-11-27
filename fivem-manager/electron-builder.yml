@@ -13,6 +13,7 @@ asarUnpack:
   - resources/**
 win:
   executableName: Fivage
+  icon: build/icon.png
   target:
     - target: nsis
       arch:
@@ -28,9 +29,10 @@ nsis:
   createDesktopShortcut: always
   oneClick: false
   allowToChangeInstallationDirectory: true
-  installerIcon: build/icon.ico
-  uninstallerIcon: build/icon.ico
-  installerHeaderIcon: build/icon.ico
+  # Les icônes seront automatiquement converties depuis icon.png si icon.ico n'existe pas
+  # installerIcon: build/icon.ico
+  # uninstallerIcon: build/icon.ico
+  # installerHeaderIcon: build/icon.ico
   deleteAppDataOnUninstall: false
 mac:
   entitlementsInherit: build/entitlements.mac.plist

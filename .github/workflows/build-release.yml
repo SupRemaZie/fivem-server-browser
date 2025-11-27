@@ -33,16 +33,13 @@ jobs:
         shell: bash
         run: |
           mkdir -p build
-          # S'assurer que l'icône existe (elle devrait déjà être dans build/icon.png)
+          # S'assurer que l'icône PNG existe (elle devrait déjà être dans build/icon.png)
           # Si elle n'existe pas, essayer de la copier depuis resources/
           if [ ! -f build/icon.png ]; then
             cp resources/icon.png build/icon.png 2>/dev/null || true
           fi
-          # Pour Windows, essayer de copier icon.ico si disponible
-          # Sinon, electron-builder convertira automatiquement icon.png en ICO
-          if [ "$RUNNER_OS" == "Windows" ] && [ ! -f build/icon.ico ]; then
-            cp resources/icon.ico build/icon.ico 2>/dev/null || true
-          fi
+          # Electron-builder convertira automatiquement icon.png en ICO pour Windows
+          # Pas besoin de icon.ico explicite
 
       - name: Install snapcraft (Linux only)
         if: matrix.os == 'ubuntu-latest'
