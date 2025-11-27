@@ -8,7 +8,10 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
 
     steps:
       - name: Checkout code
@@ -27,20 +30,39 @@ jobs:
 
       - name: Prepare build resources
         working-directory: ./fivem-manager
+        shell: bash
         run: |
           mkdir -p build
-          cp resources/icon.png build/icon.png || true
+          # S'assurer que l'icône existe (elle devrait déjà être dans build/icon.png)
+          # Si elle n'existe pas, essayer de la copier depuis resources/
+          if [ ! -f build/icon.png ]; then
+            cp resources/icon.png build/icon.png 2>/dev/null || true
+          fi
+          # Pour Windows, essayer de copier icon.ico si disponible
+          # Sinon, electron-builder convertira automatiquement icon.png en ICO
+          if [ "$RUNNER_OS" == "Windows" ] && [ ! -f build/icon.ico ]; then
+            cp resources/icon.ico build/icon.ico 2>/dev/null || true
+          fi
 
-      - name: Install snapcraft
+      - name: Install snapcraft (Linux only)
+        if: matrix.os == 'ubuntu-latest'
         run: |
           sudo snap install snapcraft --classic
 
-      - name: Clear electron-builder cache
+      - name: Clear electron-builder cache (Linux)
+        if: matrix.os == 'ubuntu-latest'
         run: |
           rm -rf ~/.cache/electron-builder/appimage || true
           rm -rf ~/.cache/electron-builder/snap-template || true
 
-      - name: Build application
+      - name: Clear electron-builder cache (Windows)
+        if: matrix.os == 'windows-latest'
+        shell: bash
+        run: |
+          rm -rf "$HOME/.cache/electron-builder" || true
+
+      - name: Build application (Linux)
+        if: matrix.os == 'ubuntu-latest'
         working-directory: ./fivem-manager
         env:
           CI: true
@@ -49,11 +71,32 @@ jobs:
           npm run build
           npx electron-builder --linux --publish never
 
-      - name: Upload artifacts
+      - name: Build application (Windows)
+        if: matrix.os == 'windows-latest'
+        working-directory: ./fivem-manager
+        env:
+          CI: true
+          CSC_IDENTITY_AUTO_DISCOVERY: false
+        shell: bash
+        run: |
+          npm run build
+          npx electron-builder --win --publish never
+
+      - name: Upload artifacts (Linux)
+        if: matrix.os == 'ubuntu-latest'
         uses: actions/upload-artifact@v4
         with:
           name: linux-build
           path: fivem-manager/dist/*.AppImage
+          if-no-files-found: warn
+          retention-days: 30
+
+      - name: Upload artifacts (Windows)
+        if: matrix.os == 'windows-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-build
+          path: fivem-manager/dist/*.exe
           if-no-files-found: warn
           retention-days: 30
 
@@ -85,9 +128,11 @@ jobs:
         with:
           files: |
             artifacts/linux-build/**
+            artifacts/windows-build/**
           draft: false
           prerelease: false
           generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
 

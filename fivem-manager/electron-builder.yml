@@ -14,7 +14,7 @@ asarUnpack:
 win:
   executableName: Fivage
   target:
-    - target: dir
+    - target: nsis
       arch:
         - x64
   sign: null
