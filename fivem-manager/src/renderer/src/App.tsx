@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { AuthProvider, useAuth } from './context/AuthContext'
-import { ThemeProvider, useTheme } from './context/ThemeContext'
+import { ThemeProvider } from './context/ThemeContext'
 import Login from './components/Login'
 import ServerList from './components/ServerList'
 import ServerForm from './components/ServerForm'
@@ -129,24 +129,6 @@ function AppContent(): React.JSX.Element {
     }
   }
 
-  const handleResetDatabase = async () => {
-    if (
-      confirm(
-        '⚠️ ATTENTION : Voulez-vous vraiment réinitialiser la base de données ?\n\nToutes les données (serveurs et joueurs) seront supprimées de manière permanente.\n\nCette action est irréversible !'
-      )
-    ) {
-      try {
-        const result = await window.api.database.reset()
-        if (result.success) {
-          alert(result.message)
-          await loadData()
-        }
-      } catch (error) {
-        console.error('Erreur lors de la réinitialisation:', error)
-        alert('Erreur lors de la réinitialisation de la base de données')
-      }
-    }
-  }
 
   // Gestion des serveurs
   const handleServerSubmit = async (
